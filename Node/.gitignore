@@ -1,0 +1,8 @@
+build/
+Drivers
+.mxproject
+startup_stm32f722xx.s
+STM32F722ICKx_FLASH.ld
+Core/Inc/stm32f7xx*.h
+Core/Src/stm32f7xx*.c
+Core/Src/system_stm32f7xx*.c
