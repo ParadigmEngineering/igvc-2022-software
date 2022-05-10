@@ -6,10 +6,22 @@ The easiest way to launch the rabbitmq message broker is using docker. At some p
 
 An important note. When using the RabbitMQ docker container, the host name parameter (`-h`, `--hostname`) should be specified. This name is used to identify the location where RMQ will store data. 
 ```
- docker run -d -h my-rabbit --name some-rabbit rabbitmq:3
+ docker run -d -h my-rabbit -p 5672:5672 --name some-rabbit rabbitmq:3
 ```
 
 This shoud launch an RMQ container running ond efault port 5672. Then, confirm operation with:
 ```
 docker logs some-rabbit
+```
+
+## RabbitMQ Commands
+List existing queues
+
+Linux 
+```
+sudo rabbitmqctl list_queues 
+```
+Windows
+```
+rabbitmqctl.bat list_queues
 ```
