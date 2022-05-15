@@ -22,4 +22,3 @@ if __name__ == "__main__":
 
     # Flush network buffers
     conn.close()
-    
