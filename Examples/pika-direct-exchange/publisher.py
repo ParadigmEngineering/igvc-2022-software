@@ -4,7 +4,6 @@ Generate and send messages to a direct exchange with
 alternating routing keys. 
 """
 
-
 import pika
 import time
 

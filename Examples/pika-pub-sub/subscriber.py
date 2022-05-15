@@ -3,6 +3,7 @@
 Subscribe to a topic and log messages from a RabbitMQ AMQP 
 message queue with a fanout exchange. 
 """
+
 import pika 
 import sys
 

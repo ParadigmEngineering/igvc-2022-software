@@ -2,6 +2,7 @@
 
 Consume and log messages from a RabbitMQ AMQP message queue. 
 """
+
 import pika
 import sys
 import os

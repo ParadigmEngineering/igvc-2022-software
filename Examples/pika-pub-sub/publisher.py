@@ -3,8 +3,8 @@
 Broadcast messages to a RabbitMQ 
 message queue with a fanout exchange. 
 """
+
 import pika 
-import sys
 
 
 if __name__ == "__main__":

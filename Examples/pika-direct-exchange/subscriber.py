@@ -5,6 +5,7 @@ Receive messages from an AMQP direct exchange.
 
 import pika
 
+
 if __name__ == "__main__":
     connection = pika.BlockingConnection(pika.ConnectionParameters(host="localhost"))
     channel = connection.channel()

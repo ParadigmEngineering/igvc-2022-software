@@ -2,7 +2,9 @@
 
 Produce a message to be consumed by consumers. 
 """
+
 import pika
+
 
 if __name__ == "__main__":
     # Connect to broker on localhost
