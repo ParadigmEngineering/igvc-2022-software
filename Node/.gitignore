@@ -1,8 +1,10 @@
 build/
 Drivers
+Makefile
 .mxproject
-startup_stm32f722xx.s
-STM32F722ICKx_FLASH.ld
-Core/Inc/stm32f7xx*.h
-Core/Src/stm32f7xx*.c
-Core/Src/system_stm32f7xx*.c
+startup_stm32f334x8.s
+STM32F334R8Tx_FLASH.ld
+Core/Inc
+Core/Src
+!Core/Src/main.c
+!Core/Inc/main.h

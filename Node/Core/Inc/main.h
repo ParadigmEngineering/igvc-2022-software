@@ -27,7 +27,7 @@ extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f7xx_hal.h"
+#include "stm32f3xx_hal.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -57,6 +57,28 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define LAMP3_ON_Pin GPIO_PIN_13
+#define LAMP3_ON_GPIO_Port GPIOC
+#define LAMP2_ON_Pin GPIO_PIN_14
+#define LAMP2_ON_GPIO_Port GPIOC
+#define LAMP1_ON_Pin GPIO_PIN_15
+#define LAMP1_ON_GPIO_Port GPIOC
+#define LED1_Pin GPIO_PIN_0
+#define LED1_GPIO_Port GPIOF
+#define LED2_Pin GPIO_PIN_1
+#define LED2_GPIO_Port GPIOF
+#define ESC1_ON_Pin GPIO_PIN_0
+#define ESC1_ON_GPIO_Port GPIOA
+#define ESC1_ADC2_UNFILT_Pin GPIO_PIN_1
+#define ESC1_ADC2_UNFILT_GPIO_Port GPIOA
+#define ESC1_TX_Pin GPIO_PIN_2
+#define ESC1_TX_GPIO_Port GPIOA
+#define ESC1_RX_Pin GPIO_PIN_3
+#define ESC1_RX_GPIO_Port GPIOA
+#define BATT_GOOD_Pin GPIO_PIN_10
+#define BATT_GOOD_GPIO_Port GPIOA
+#define LAMP4_ON_Pin GPIO_PIN_9
+#define LAMP4_ON_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
