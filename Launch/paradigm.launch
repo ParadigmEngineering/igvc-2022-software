@@ -1,0 +1,6 @@
+<launch>
+        <arg name="can_device" default="vcan0"/>
+        <node pkg="socketcan_bridge" type="socketcan_bridge_node" name="can_bridge" ns="para">
+                <param name="can_device" value="$(arg can_device)"/>
+        </node>
+</launch>
