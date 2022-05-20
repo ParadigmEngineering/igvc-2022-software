@@ -2,9 +2,9 @@
 Intelligent Ground Vehicle Competition (Spring 2022) software for the Paradigm Engineering Student Group
 
 # ROS Setup
+ROS packages are handled a little differently in this repo than most others.
 
 ## TLDR
-
 Prerequisites:
 - Linux
 - ROS install
