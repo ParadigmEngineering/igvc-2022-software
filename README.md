@@ -1,2 +1,33 @@
 # igvc-comp1-software
 Intelligent Ground Vehicle Competition (Spring 2022) software for the Paradigm Engineering Student Group
+
+## ROS Setup
+ROS best practice states that ROS packages should be developed in a workspace. Modern 
+ROS distros use the catkin build tool, and catkin workspaces. The catkin workspace consists
+of three "spaces", which are just folders:
+- `build` (build-space)
+- `devel` (develop-space)
+- `src`   (source-space)
+
+Packages are stored in the `src` space. This makes it very easy to build all packages 
+and manage cross dependencies (the primary advantage of keeping them in the workspace).
+However, there are a lot of transient files generated in devel and build as a result.
+
+To avoid tracking these in git, the `src` folder of the catkin workspace is symlinked
+to the `ROS` folder of this repo, using the script `rospack_install`. This allows
+us to track only the packages, and also easily configure a catkin workspace. 
+
+This generates a catkin workspace at `~/catkin_ws`, and establishes the symlink. Keep in
+mind:
+- Only valid on linux
+- Script must be executed from the repo root
+- Must havbe ROS installed (a new enough distro that catkin is used - Noetic ideally)
+
+After executing the script, the following should build all packages in the repository
+after which they can be spun up using `rosrun` or `roslaunch`:
+```
+pmake
+```
+
+**Note: I have not seen this approach used before. There may be some pitfalls associated
+with this that we will absolutely swan dive into. Contingency: track the catkin workspace.** 
