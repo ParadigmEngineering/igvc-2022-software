@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Setup ROS workspace
 
 # Must be executed from this directory
 REPO_DIR=$(pwd) 
