@@ -310,3 +310,14 @@ int64 B
 # Response
 int64 Sum
 ```
+
+## rosdep
+To check where packages can be found: 
+```
+rosdep resolve --rosdistro=noetic ros_canopen
+```
+
+Install dependencies of all packages in {folder} that are not installed:
+```
+rosdep install --from-paths {folder} --ignore-src -r -y
+```
