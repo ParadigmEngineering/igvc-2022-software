@@ -8,4 +8,7 @@
         <node pkg="example_pkg" type="can_logger.py" name="can_logger" ns="para" output="screen">
         </node>
 
+        <node pkg="example_pkg" type="can_sender.py" name="can_sender" ns="para" output="screen">
+        </node>
+
 </launch>
