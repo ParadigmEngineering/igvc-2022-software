@@ -20,7 +20,7 @@ def handle_frame(frame: Frame):
     data = []
     for i in range(frame.dlc):
         data.append(frame.data[i])
-    
+
     log_message = f"ID: {frame.id:<3} DLC: {frame.dlc: <1} Data: {data}"
     rospy.loginfo(log_message)
 
