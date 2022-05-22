@@ -46,4 +46,4 @@ pmake
 ```
 
 **Note: I have not seen this approach used before. There may be some pitfalls associated
-with this that we will absolutely swan dive into. Contingency: track the catkin workspace.** 
+with this that we will absolutely swan dive into. Contingency: track the catkin workspace.**

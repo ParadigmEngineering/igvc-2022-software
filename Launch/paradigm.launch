@@ -1,0 +1,14 @@
+<launch>
+        <arg name="can_device" default="vcan0"/>
+ 
+        <node pkg="socketcan_bridge" type="socketcan_bridge_node" name="can_bridge" ns="para" output="screen">
+                <param name="can_device" value="$(arg can_device)"/>
+        </node>
+
+        <node pkg="example_pkg" type="can_logger.py" name="can_logger" ns="para" output="screen">
+        </node>
+
+        <node pkg="example_pkg" type="can_sender.py" name="can_sender" ns="para" output="screen">
+        </node>
+
+</launch>
