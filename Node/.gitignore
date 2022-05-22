@@ -8,3 +8,5 @@ Core/Inc
 Core/Src
 !Core/Src/main.c
 !Core/Inc/main.h
+compile_commands.json
+.cache/
