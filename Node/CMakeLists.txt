@@ -43,8 +43,12 @@ set(STM32CUBEMX_GENERATED_FILES
     startup_stm32f334x8.s
 )
 
+set(STM32_USER_CREATED_FILES
+    Core/Src/can_handler.c
+)
+
 set(EXECUTABLE ${PROJECT_NAME}.out)
-add_executable(${EXECUTABLE} ${STM32CUBEMX_GENERATED_FILES})
+add_executable(${EXECUTABLE} ${STM32CUBEMX_GENERATED_FILES} ${STM32_USER_CREATED_FILES})
 
 target_compile_definitions(${EXECUTABLE} PRIVATE
     -DUSE_HAL_DRIVER

@@ -8,5 +8,7 @@ Core/Inc
 Core/Src
 !Core/Src/main.c
 !Core/Inc/main.h
+!Core/Src/can_handler.c
+!Core/Inc/can_handler.h
 compile_commands.json
 .cache/
