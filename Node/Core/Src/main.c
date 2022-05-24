@@ -109,6 +109,7 @@ int main(void)
   while (1)
   {
     receive_can_message(&message);
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
