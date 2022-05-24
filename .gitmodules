@@ -1,0 +1,3 @@
+[submodule "ROS/zed-ros-wrapper"]
+	path = ROS/zed-ros-wrapper
+	url = git@github.com:stereolabs/zed-ros-wrapper.git
