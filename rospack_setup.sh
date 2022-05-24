@@ -12,7 +12,6 @@ echo "-- Repo dir: ${REPO_ROS_DIR}"
 WS_DIR=~/catkin_ws
 echo "-- Creating folder to house catkin workspace: ${WS_DIR}"
 
-# Uncomment below
 rm -r $WS_DIR 
 mkdir $WS_DIR
 cd $WS_DIR
@@ -22,6 +21,10 @@ ln -s ${REPO_ROS_DIR} src
 
 echo "-- Creating catkin workspace and building packages..."
 catkin_make
+source devel/setup.bash
+
+echo "-- Installing ROS package dependencies..."
+rosdep install --from-paths src --ignore-src -r -y
 
 echo "-- Installing ROS workspace and pmake alias..."
 COMMAND="source ${WS_DIR}/devel/setup.bash"
