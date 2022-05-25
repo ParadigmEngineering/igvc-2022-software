@@ -1,6 +1,19 @@
 # igvc-comp1-software
 Intelligent Ground Vehicle Competition (Spring 2022) software for the Paradigm Engineering Student Group
 
+# General Cloning Advice
+Be sure to recurse those submodules. 
+
+If before cloning
+```
+ git clone --recursive git@github.com:ParadigmBoring/igvc-comp1-software.git
+```
+
+If after cloning
+```
+git submodule update --init --recursive
+```
+
 # ROS Setup
 ROS packages are handled a little differently in this repo than most others.
 
