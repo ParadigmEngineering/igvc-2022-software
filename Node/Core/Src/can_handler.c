@@ -1,11 +1,58 @@
 #include "can_handler.h"
 #include "can_message_defs.h"
-#include "main.h"
-#include "stm32f3xx_hal_gpio.h"
+#include "stm32f334x8.h"
 #include "utilities.h"
+
+#include "main.h"
+
 #include "stm32f3xx_hal_can.h"
+#include "stm32f3xx_hal_gpio.h"
 
 static CAN_TxHeaderTypeDef txHeader;
+
+static void led_test(uint32_t id, GPIO_PinState state)
+{
+    GPIO_TypeDef* port;
+    uint16_t pin;
+
+    switch(id)
+    {
+    case LED_1_TEST_ON:
+    case LED_1_TEST_OFF:
+        port = LED1_GPIO_Port;
+        pin = LED1_Pin;
+        break;
+    case LED_2_TEST_ON:
+    case LED_2_TEST_OFF:
+        port = LED2_GPIO_Port;
+        pin = LED2_Pin;
+        break;
+    case LAMP_1_TEST_ON:
+    case LAMP_1_TEST_OFF:
+        port = LAMP1_ON_GPIO_Port;
+        pin = LAMP1_ON_Pin;
+        break;
+    case LAMP_2_TEST_ON:
+    case LAMP_2_TEST_OFF:
+        port = LAMP2_ON_GPIO_Port;
+        pin = LAMP2_ON_Pin;
+        break;
+    case LAMP_3_TEST_ON:
+    case LAMP_3_TEST_OFF:
+        port = LAMP3_ON_GPIO_Port;
+        pin = LAMP3_ON_Pin;
+        break;
+    case LAMP_4_TEST_ON:
+    case LAMP_4_TEST_OFF:
+        port = LAMP4_ON_GPIO_Port;
+        pin = LAMP4_ON_Pin;
+        break;
+    default:
+        return;
+    }
+
+    HAL_GPIO_WritePin(port, pin, state);
+}
 
 CanStatus receive_can_message(CanMessage* message)
 {
@@ -53,54 +100,20 @@ void handle_can_messages(uint8_t num_msgs_to_handle)
     CanMessage message;
     CanStatus status;
 
-    if ((status = receive_can_message(&message)) == CAN_GOOD)
+    for (int i = 0; i < num_msgs_to_handle; i++)
     {
-        switch (message.id)
+        status = receive_can_message(&message);
+        if (status == CAN_GOOD)
         {
-        // TODO maybe some fancy bit manipulation of IDs to make
-        // this code a bit nicer
-        case LED_1_TEST_ON:
-            HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_SET);
-            break;
-        case LED_2_TEST_ON:
-            HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_SET);
-            break;
-        case LAMP_1_TEST_ON:
-            HAL_GPIO_WritePin(LAMP1_ON_GPIO_Port, LAMP1_ON_Pin, GPIO_PIN_SET);
-            break;
-        case LAMP_2_TEST_ON:
-            HAL_GPIO_WritePin(LAMP2_ON_GPIO_Port, LAMP2_ON_Pin, GPIO_PIN_SET);
-            break;
-        case LAMP_3_TEST_ON:
-            HAL_GPIO_WritePin(LAMP3_ON_GPIO_Port, LAMP3_ON_Pin, GPIO_PIN_SET);
-            break;
-        case LAMP_4_TEST_ON:
-            HAL_GPIO_WritePin(LAMP4_ON_GPIO_Port, LAMP4_ON_Pin, GPIO_PIN_SET);
-            break;
-
-        case LED_1_TEST_OFF:
-            HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET);
-            break;
-        case LED_2_TEST_OFF:
-            HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_RESET);
-            break;
-        case LAMP_1_TEST_OFF:
-            HAL_GPIO_WritePin(LAMP1_ON_GPIO_Port, LAMP1_ON_Pin, GPIO_PIN_RESET);
-            break;
-        case LAMP_2_TEST_OFF:
-            HAL_GPIO_WritePin(LAMP2_ON_GPIO_Port, LAMP2_ON_Pin, GPIO_PIN_RESET);
-            break;
-        case LAMP_3_TEST_OFF:
-            HAL_GPIO_WritePin(LAMP3_ON_GPIO_Port, LAMP3_ON_Pin, GPIO_PIN_RESET);
-            break;
-        case LAMP_4_TEST_OFF:
-            HAL_GPIO_WritePin(LAMP4_ON_GPIO_Port, LAMP4_ON_Pin, GPIO_PIN_RESET);
-            break;
+            if (message.id & LED_ON_TEST_MASK)
+            {
+                led_test(message.id, GPIO_PIN_SET);
+            }
+            else if (message.id & LED_OFF_TEST_MASK)
+            {
+                led_test(message.id, GPIO_PIN_RESET);
+            }
         }
+        else if (status == CAN_RX_FIFO_EMPTY) { break; }
     }
-
 }
-
-
-
-

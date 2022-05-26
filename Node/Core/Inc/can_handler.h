@@ -2,8 +2,8 @@
 
 typedef struct CanMessage
 {
-    uint32_t id;
-    uint32_t len;
+    uint16_t id;
+    uint8_t len;
     uint8_t data[8];
 } CanMessage;
 
