@@ -101,14 +101,13 @@ int main(void)
   /* USER CODE BEGIN 2 */
   HAL_CAN_Start(&hcan);
 
-  CanMessage message;
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    receive_can_message(&message);
+    handle_can_messages(1);
 
     /* USER CODE END WHILE */
 
