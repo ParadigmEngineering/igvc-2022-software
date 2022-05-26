@@ -11,5 +11,6 @@ Core/Src
 !Core/Src/can_handler.c
 !Core/Inc/can_handler.h
 !Core/Inc/utilities.h
+!Core/Inc/can_message_defs.h
 compile_commands.json
 .cache/
