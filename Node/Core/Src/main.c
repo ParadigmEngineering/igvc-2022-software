@@ -18,9 +18,12 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "bldc_interface.h"
+#include "bldc_interface_uart.h"
 #include "can.h"
 #include "i2c.h"
 #include "spi.h"
+#include "stm32f3xx_hal_usart.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
@@ -58,7 +61,20 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+static void send_packet_motor_1(unsigned char* data, unsigned int len)
+{
+  HAL_UART_Transmit(&huart1, data, len, 0);
+}
 
+static void send_packet_motor_2(unsigned char* data, unsigned int len)
+{
+  HAL_UART_Transmit(&huart2, data, len, 0);
+}
+
+static void send_packet_motor_3(unsigned char* data, unsigned int len)
+{
+  HAL_UART_Transmit(&huart3, data, len, 0);
+}
 /* USER CODE END 0 */
 
 /**
@@ -68,7 +84,9 @@ void SystemClock_Config(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-
+  BldcInterface motor1;
+  BldcInterface motor2;
+  BldcInterface motor3;
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -98,8 +116,15 @@ int main(void)
   MX_TIM17_Init();
   MX_I2C1_Init();
   MX_SPI1_Init();
-  /* USER CODE BEGIN 2 */
 
+  /* USER CODE BEGIN 2 */
+  bldc_interface_init(&motor1, send_packet_motor_1);
+  bldc_interface_init(&motor2, send_packet_motor_2);
+  bldc_interface_init(&motor3, send_packet_motor_3);
+
+  uint8_t motor1_data;
+  uint8_t motor2_data;
+  uint8_t motor3_data;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -107,7 +132,16 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
+    // TODO receive more than one byte at a time
+    // TODO Error handling before processing bytes
+    HAL_UART_Receive(&huart1, &motor1_data, 1, 0);
+    HAL_UART_Receive(&huart2, &motor2_data, 1, 0);
+    HAL_UART_Receive(&huart3, &motor3_data, 1, 0);
 
+
+    bldc_interface_uart_process_byte(&motor1, motor1_data);
+    bldc_interface_uart_process_byte(&motor2, motor2_data);
+    bldc_interface_uart_process_byte(&motor3, motor3_data);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */

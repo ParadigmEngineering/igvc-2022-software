@@ -1,9 +1,9 @@
 #!/bin/bash
-if [ ! -d "build" ]; then
+if [ ! -d "Build" ]; then
     echo "Making build directory..."
-    mkdir build
+    mkdir Build
 fi
-pushd build
+pushd Build
 cmake -DCMAKE_TOOLCHAIN_FILE=../arm-none-eabi-gcc.cmake -DCMAKE_BUILD_TYPE=Debug ..
 make
 mv compile_commands.json ..

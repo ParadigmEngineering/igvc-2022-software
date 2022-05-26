@@ -43,8 +43,20 @@ set(STM32CUBEMX_GENERATED_FILES
     startup_stm32f334x8.s
 )
 
+set(STM32_USER_CREATED_FILES
+    Core/Src/vesc_packet.c
+)
+
+set(EXTERNAL_FILES
+    External/Src/bldc_interface_uart.c
+    External/Src/bldc_interface.c
+    External/Src/buffer.c
+    External/Src/crc.c
+    External/Src/packet.c
+)
+
 set(EXECUTABLE ${PROJECT_NAME}.out)
-add_executable(${EXECUTABLE} ${STM32CUBEMX_GENERATED_FILES})
+add_executable(${EXECUTABLE} ${STM32CUBEMX_GENERATED_FILES} ${EXTERNAL_FILES})
 
 target_compile_definitions(${EXECUTABLE} PRIVATE
     -DUSE_HAL_DRIVER
@@ -53,6 +65,7 @@ target_compile_definitions(${EXECUTABLE} PRIVATE
 
 target_include_directories(${EXECUTABLE} PRIVATE
     Core/Inc
+    External/Inc
     Drivers/STM32F3xx_HAL_Driver/Inc
     Drivers/CMSIS/Device/ST/STM32F3xx/Include
     Drivers/CMSIS/Include
