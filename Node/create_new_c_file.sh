@@ -1,13 +1,13 @@
 #!/bin/bash
 file_name=$1
 
-touch Core/Inc/$1.h
-touch Core/Src/$1.c
+touch Core/Inc/$file_name.h
+touch Core/Src/$file_name.c
 
-echo "// Placeholder" >> Core/Inc/$1.h
-echo "// Placeholder" >> Core/Src/$1.c
+echo "// Placeholder" >> Core/Inc/$file_name.h
+echo "// Placeholder" >> Core/Src/$file_name.c
 
-echo "!Core/Inc/$1.h" >> .gitignore
-echo "!Core/Src/$1.c" >> .gitignore
+echo "!Core/Inc/$file_name.h" >> .gitignore
+echo "!Core/Src/$file_name.c" >> .gitignore
 
-git add -f Core/Inc/$1.h Core/Src/$1.c
+git add -f Core/Inc/$file_name.h Core/Src/$file_name.c
