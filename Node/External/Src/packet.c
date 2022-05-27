@@ -30,7 +30,7 @@ typedef struct {
 	volatile unsigned char rx_state;
 	volatile unsigned char rx_timeout;
 	void(*send_func)(unsigned char *data, unsigned int len);
-	void(*process_func)(unsigned char *data, unsigned int len);
+	void(*process_func)(BldcInterface* interface, unsigned char *data, unsigned int len);
 	unsigned int payload_length;
 	unsigned char rx_buffer[PACKET_MAX_PL_LEN];
 	unsigned char tx_buffer[PACKET_MAX_PL_LEN + 6];
@@ -42,7 +42,7 @@ typedef struct {
 static PACKET_STATE_t handler_states[PACKET_HANDLERS];
 
 void packet_init(void (*s_func)(unsigned char *data, unsigned int len),
-		void (*p_func)(unsigned char *data, unsigned int len), int handler_num) {
+		void (*p_func)(BldcInterface* interface, unsigned char *data, unsigned int len), int handler_num) {
 	handler_states[handler_num].send_func = s_func;
 	handler_states[handler_num].process_func = p_func;
 }
@@ -90,7 +90,7 @@ void packet_timerfunc(void) {
 	}
 }
 
-void packet_process_byte(uint8_t rx_data, int handler_num) {
+void packet_process_byte(BldcInterface* interface, uint8_t rx_data, int handler_num) {
 	switch (handler_states[handler_num].rx_state) {
 	case 0:
 		if (rx_data == 2) {
@@ -154,7 +154,7 @@ void packet_process_byte(uint8_t rx_data, int handler_num) {
 							| (unsigned short)handler_states[handler_num].crc_low)) {
 				// Packet received!
 				if (handler_states[handler_num].process_func) {
-					handler_states[handler_num].process_func(handler_states[handler_num].rx_buffer,
+					handler_states[handler_num].process_func(interface, handler_states[handler_num].rx_buffer,
 							handler_states[handler_num].payload_length);
 				}
 			}

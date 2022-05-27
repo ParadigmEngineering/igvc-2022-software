@@ -118,9 +118,9 @@ int main(void)
   MX_SPI1_Init();
 
   /* USER CODE BEGIN 2 */
-  bldc_interface_init(&motor1, send_packet_motor_1);
-  bldc_interface_init(&motor2, send_packet_motor_2);
-  bldc_interface_init(&motor3, send_packet_motor_3);
+  bldc_interface_uart_init(&motor1, send_packet_motor_1);
+  bldc_interface_uart_init(&motor2, send_packet_motor_2);
+  bldc_interface_uart_init(&motor3, send_packet_motor_3);
 
   uint8_t motor1_data;
   uint8_t motor2_data;
@@ -137,7 +137,6 @@ int main(void)
     HAL_UART_Receive(&huart1, &motor1_data, 1, 0);
     HAL_UART_Receive(&huart2, &motor2_data, 1, 0);
     HAL_UART_Receive(&huart3, &motor3_data, 1, 0);
-
 
     bldc_interface_uart_process_byte(&motor1, motor1_data);
     bldc_interface_uart_process_byte(&motor2, motor2_data);
