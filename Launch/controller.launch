@@ -1,0 +1,5 @@
+<launch>
+        <node pkg="joy" type="joy_node" name="joystick_bridge" ns="para" output="screen">
+            <param name="dev" value="/dev/input/js1"/>
+        </node>
+</launch>

@@ -14,6 +14,11 @@ The `joy` sub-package contains a node called `joy_node`. This
 node publishes the message `joy` which contains the state of each
 button / joystick on the gamepad.
 
+Sample node execution
+```
+rosrun joy joy_node _dev:="/dev/input/js1"
+```
+
 ## Configuration
 The node provides a set of ROS parameters used to specify information 
 about the device in use. 
@@ -28,7 +33,7 @@ about the device in use.
 | coalesce_interval | double  | 0.001             |
 | default_trig_val  | bool    | false             |
 
-Note: (All are private, i.e. should be prefixed with `~`)
+Note: (All are private, i.e. should be prefixed with `_` to remap from commandline as seen in previous section)
 
 ## Table of index number of /joy.buttons:
 
