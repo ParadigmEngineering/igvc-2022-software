@@ -76,3 +76,10 @@ Note: (All are private, i.e. should be prefixed with `_` to remap from commandli
 6 - cross key left/right
 
 7 - cross key up/down
+
+## Tweaking
+- using the default 0.05 (5%) deadzone, the controller was displaying non-zero joystick 
+values when untouched. 
+- Increasing to 10% helped, however it was still a little sensitive and not returning to 0.0 when released
+- Increasing to 20% feels much more robust, when releasing the sticks their readings snap to 0
+- Further tweaking may be required when controlling a physical robot

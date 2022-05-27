@@ -1,5 +1,7 @@
 <launch>
         <node pkg="joy" type="joy_node" name="joystick_bridge" ns="para" output="screen">
-            <param name="dev" value="/dev/input/js1"/>
+            <param name="dev" type="str" value="/dev/input/js1"/>
+            <param name="deadzone" type="double" value="0.20"/>
+            <param name="autorepeat_rate" type="double" value="0.0"/>
         </node>
 </launch>
