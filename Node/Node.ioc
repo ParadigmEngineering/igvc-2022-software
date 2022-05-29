@@ -1,8 +1,11 @@
 #MicroXplorer Configuration settings - do not modify
-CAN.CalculateBaudRate=166666
-CAN.CalculateTimeBit=6000
-CAN.CalculateTimeQuantum=2000.0
-CAN.IPParameters=CalculateTimeQuantum,CalculateTimeBit,CalculateBaudRate
+CAN.BS1=CAN_BS1_3TQ
+CAN.BS2=CAN_BS2_4TQ
+CAN.CalculateBaudRate=500000
+CAN.CalculateTimeBit=2000
+CAN.CalculateTimeQuantum=250.0
+CAN.IPParameters=CalculateTimeQuantum,CalculateTimeBit,CalculateBaudRate,Prescaler,BS1,BS2
+CAN.Prescaler=2
 File.Version=6
 GPIO.groupedBy=
 KeepUserPlacement=false

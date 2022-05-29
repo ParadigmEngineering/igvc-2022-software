@@ -91,7 +91,13 @@ CanStatus send_can_message(CanMessage* message)
     txHeader.DLC = message->len;
     txHeader.TransmitGlobalTime = DISABLE;
 
-    HAL_CAN_AddTxMessage(&hcan, &txHeader, message->data, NULL);
+    uint32_t mailbox;
+
+    if (HAL_CAN_AddTxMessage(&hcan, &txHeader, message->data, &mailbox) != HAL_OK)
+    {
+        return CAN_TX_MAILBOXES_FULL;
+    }
+
     return CAN_GOOD;
 }
 
