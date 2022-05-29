@@ -12,7 +12,7 @@
 		name="height"
 		default="0"
 	/>
-	<include file="$(find open_base)/launch/gazebo controller.launch">
+	<include file="$(find open_base)/launch/gazebo_controller.launch">
 
 		<arg
 			name="paused"

@@ -1,6 +1,6 @@
 <launch>
 
-    <include file="$(find open_base)/launch/velocity controller.launch">
+    <include file="$(find open_base)/launch/velocity_controller.launch">
 
         <arg
             name="height"
