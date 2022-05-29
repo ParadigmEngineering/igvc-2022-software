@@ -4,6 +4,3 @@
 [submodule "ROS/zed-ros-examples"]
 	path = ROS/zed-ros-examples
 	url = git@github.com:stereolabs/zed-ros-examples.git
-[submodule "ROS/omni3ros_pkg"]
-	path = ROS/omni3ros_pkg
-	url = git@github.com:YugAjmera/omni3ros_pkg.git
