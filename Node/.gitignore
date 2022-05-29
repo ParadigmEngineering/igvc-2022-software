@@ -1,0 +1,12 @@
+build/
+Drivers
+Makefile
+.mxproject
+startup_stm32f334x8.s
+STM32F334R8Tx_FLASH.ld
+Core/Inc
+Core/Src
+!Core/Src/main.c
+!Core/Inc/main.h
+compile_commands.json
+.cache/
