@@ -3,7 +3,6 @@
 Listen for /para/joy messages, and convert to motor commands. 
 """
 
-import struct
 import rospy
 
 from enum import IntEnum, unique
