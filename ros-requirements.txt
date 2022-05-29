@@ -1,2 +1,4 @@
 ros-noetic-ros-canopen
 ros-noetic-joy
+ros-noetic-controllers
+ros-noetic-control
