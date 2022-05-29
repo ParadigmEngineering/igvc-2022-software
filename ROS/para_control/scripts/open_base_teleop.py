@@ -6,7 +6,7 @@ Listen for key presses and convert to open_base commands.
 import rospy
 import sys, termios, tty
 
-from open_base.msg import Movement, MovementGeneric
+from open_base.msg import Movement
 from enum import IntEnum, unique
 
 # TODO: On node close, send velocity 0 command
