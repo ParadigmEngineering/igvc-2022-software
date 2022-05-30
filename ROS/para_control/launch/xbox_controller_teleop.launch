@@ -1,0 +1,10 @@
+<launch>
+        <node pkg="joy" type="joy_node" name="joystick_bridge" ns="para">
+            <param name="dev" type="str" value="/dev/input/js0"/>
+            <param name="deadzone" type="double" value="0.20"/>
+            <param name="autorepeat_rate" type="double" value="0.0"/>
+        </node>
+
+        <node pkg="para_control" type="open_base_teleop_controller.py" name="open_base_teleop_controller" ns="para" output="screen">
+        </node>
+</launch>
