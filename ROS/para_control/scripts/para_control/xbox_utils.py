@@ -45,7 +45,8 @@ class XboxControllerState():
 
     Buttons (0, 1): Pressed = 1, Released = 0 
     Trigger (float): Squeezed Fully = -1, Released = 1 
-    Joypad (float): 
+    Joypad (float): The dpad uses the same axis, but can only be -1 or 1. 
+
                 +y 1
                 |
                 |
