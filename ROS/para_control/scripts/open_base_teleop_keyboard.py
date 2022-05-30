@@ -7,26 +7,10 @@ import rospy
 import sys, termios, tty
 
 from open_base.msg import Movement
-from enum import IntEnum, unique
+from para_control.open_base_utils import GenericMovementFrame, GenericMovementType
 
 # TODO: On node close, send velocity 0 command
 # TODO: Implement press and hold 
-
-@unique
-class GenericMovementType(IntEnum):
-    ABSOLUTE = 0
-    RELATIVE = 1
-    VELOCITY = 2
-
-
-@unique
-class GenericMovementFrame(IntEnum):
-    HYBRID      = 0
-    MOBILE      = 1
-    RAW_MOBILE  = 2
-    WORLD       = 3
-
-
 move_bindings = \
 {
 	'w': [0, 1],
