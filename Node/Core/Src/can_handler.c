@@ -75,6 +75,7 @@ CanStatus receive_can_message(CanMessage* message)
     return CAN_RX_FIFO_EMPTY;
 }
 
+// Won't send message if Tx mailbox is full
 CanStatus send_can_message(CanMessage* message)
 {
     if (message->len > 8) { return CAN_DATA_TOO_LONG; }
@@ -99,6 +100,16 @@ CanStatus send_can_message(CanMessage* message)
     }
 
     return CAN_GOOD;
+}
+
+// Will block and try to send CAN message
+CanStatus send_can_message_blocking(CanMessage* message)
+{
+    CanStatus status;
+    do { status = send_can_message(message); }
+    while (status == CAN_TX_MAILBOXES_FULL);
+
+    return status;
 }
 
 void handle_can_messages(uint8_t num_msgs_to_handle)

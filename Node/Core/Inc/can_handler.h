@@ -17,4 +17,5 @@ typedef enum CanStatus
 
 CanStatus receive_can_message(CanMessage* message);
 CanStatus send_can_message(CanMessage* message);
+CanStatus send_can_message_blocking(CanMessage* message);
 void handle_can_messages(uint8_t num_msgs_to_handle);

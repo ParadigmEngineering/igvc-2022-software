@@ -52,11 +52,11 @@ set(EXTERNAL_FILES
     External/Src/bldc_interface.c
     External/Src/buffer.c
     External/Src/crc.c
-    External/Src/packert.c
+    External/Src/packet.c
 )
 
 set(EXECUTABLE ${PROJECT_NAME}.out)
-add_executable(${EXECUTABLE} ${STM32CUBEMX_GENERATED_FILES} ${STM32_USER_CREATED_FILES})
+add_executable(${EXECUTABLE} ${STM32CUBEMX_GENERATED_FILES} ${STM32_USER_CREATED_FILES} ${EXTERNAL_FILES})
 
 target_compile_definitions(${EXECUTABLE} PRIVATE
     -DUSE_HAL_DRIVER
@@ -82,7 +82,7 @@ target_compile_options(${EXECUTABLE} PRIVATE
 
     -Wall
 
-    $<$<CONFIG:Debug>:-Og>
+    -Og
 )
 
 target_link_options(${EXECUTABLE} PRIVATE

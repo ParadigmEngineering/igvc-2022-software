@@ -19,12 +19,17 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "can.h"
+#include "datatypes.h"
 #include "i2c.h"
 #include "spi.h"
+#include "stm32f334x8.h"
 #include "stm32f3xx_hal_gpio.h"
+#include "stm32f3xx_hal.h"
+#include "stm32f3xx_hal_uart.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
+#include <string.h>
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -61,6 +66,66 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+static void write_packet(unsigned char* data, unsigned int len)
+{
+  HAL_UART_Transmit(&huart3, data, len, 1000);
+}
+
+uint8_t rx_data;
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+  if (huart == &huart3)
+  {
+    HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_SET);
+    bldc_interface_uart_process_byte(rx_data);
+    HAL_UART_Receive_IT(&huart3, &rx_data, 1);
+  }
+}
+
+static void bldc_values_received(mc_values* val)
+{
+  CanMessage message1 = {
+    100,
+    8
+  };
+  memcpy(message1.data, &val->v_in, 4);
+  memcpy((message1.data + 4), &val->temp_mos, 4);
+
+  CanMessage message2 = {
+    101,
+    8
+  };
+  memcpy(message2.data, &val->temp_motor, 4);
+  memcpy((message2.data + 4), &val->current_motor, 4);
+
+  CanMessage message3 = {
+    102,
+    8
+  };
+  memcpy(message3.data, &val->current_in, 4);
+  memcpy((message3.data + 4), &val->id, 4);
+  
+  CanMessage message4 = {
+    103,
+    8
+  };
+  memcpy(message4.data, &val->iq, 4);
+  memcpy((message4.data + 4), &val->rpm, 4);
+
+  CanMessage message5 = {
+    104,
+    8
+  };
+  memcpy(message5.data, &val->duty_now, 4);
+  memcpy((message5.data + 4), &val->amp_hours, 4);
+
+  send_can_message_blocking(&message1);
+  send_can_message_blocking(&message2);
+  send_can_message_blocking(&message3);
+  send_can_message_blocking(&message4);
+  send_can_message_blocking(&message5);
+}
 
 /* USER CODE END 0 */
 
@@ -113,17 +178,26 @@ int main(void)
   if (HAL_CAN_ConfigFilter(&hcan, &sf) != HAL_OK) {
     Error_Handler();
   }
-
   HAL_CAN_Start(&hcan);
 
+  bldc_interface_uart_init(write_packet);
+  bldc_interface_set_rx_value_func(bldc_values_received);
+
+  HAL_UART_Receive_IT(&huart3, &rx_data, 1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    handle_can_messages(1);
+    // handle_can_messages(1);
+    bldc_interface_set_rpm(700);
 
+    HAL_Delay(100);
+
+    bldc_interface_get_values();
+
+    HAL_Delay(100);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
