@@ -27,10 +27,11 @@
 
 // Includes
 #include "packet.h" // For the MAX_PACKET_LEN define
+#include "bldc_interface.h"
 
 // Functions
-void bldc_interface_uart_init(void(*func)(unsigned char *data, unsigned int len));
-void bldc_interface_uart_process_byte(unsigned char b);
-void bldc_interface_uart_run_timer(void);
+void bldc_interface_uart_init(BldcInterface* interface, void(*func)(unsigned char *data, unsigned int len));
+void bldc_interface_uart_process_byte(BldcInterface* interface, unsigned char b);
+void bldc_interface_uart_run_timer(BldcInterface* interface);
 
 #endif /* BLDC_INTERFACE_UART_H_ */

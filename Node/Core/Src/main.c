@@ -19,13 +19,9 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "can.h"
-#include "datatypes.h"
 #include "i2c.h"
 #include "spi.h"
-#include "stm32f334x8.h"
-#include "stm32f3xx_hal_gpio.h"
 #include "stm32f3xx_hal.h"
-#include "stm32f3xx_hal_uart.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
@@ -55,7 +51,9 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+BldcInterface motor1;
+BldcInterface motor2;
+BldcInterface motor3;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -66,21 +64,41 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-static void write_packet(unsigned char* data, unsigned int len)
+static void write_packet_motor1(unsigned char* data, unsigned int len)
+{
+  HAL_UART_Transmit(&huart2, data, len, 1000);
+}
+
+static void write_packet_motor2(unsigned char* data, unsigned int len)
 {
   HAL_UART_Transmit(&huart3, data, len, 1000);
+}
+
+static void write_packet_motor3(unsigned char* data, unsigned int len)
+{
+  HAL_UART_Transmit(&huart1, data, len, 1000);
 }
 
 uint8_t rx_data;
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
-  if (huart == &huart3)
+  BldcInterface* motor;
+  if (huart == &huart1)
   {
-    HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_SET);
-    bldc_interface_uart_process_byte(rx_data);
-    HAL_UART_Receive_IT(&huart3, &rx_data, 1);
+    motor = &motor3;
   }
+  else if (huart == &huart2)
+  {
+    motor = &motor1;
+  }
+  else // huart == &huart3
+  {
+    motor = &motor2;
+  }
+
+  bldc_interface_uart_process_byte(motor, rx_data);
+  HAL_UART_Receive_IT(huart, &rx_data, 1);
 }
 
 static void bldc_values_received(mc_values* val)
@@ -136,6 +154,14 @@ static void bldc_values_received(mc_values* val)
 int main(void)
 {
   /* USER CODE BEGIN 1 */
+  bldc_interface_uart_init(&motor1, write_packet_motor1);
+  bldc_interface_set_rx_value_func(&motor1, bldc_values_received);
+
+  bldc_interface_uart_init(&motor2, write_packet_motor2);
+  // bldc_interface_set_rx_value_func(&motor2, bldc_values_received);
+
+  bldc_interface_uart_init(&motor3, write_packet_motor3);
+  // bldc_interface_set_rx_value_func(&motor3, bldc_values_received);
 
   /* USER CODE END 1 */
 
@@ -180,10 +206,7 @@ int main(void)
   }
   HAL_CAN_Start(&hcan);
 
-  bldc_interface_uart_init(write_packet);
-  bldc_interface_set_rx_value_func(bldc_values_received);
-
-  HAL_UART_Receive_IT(&huart3, &rx_data, 1);
+  HAL_UART_Receive_IT(&huart2, &rx_data, 1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -191,11 +214,13 @@ int main(void)
   while (1)
   {
     // handle_can_messages(1);
-    bldc_interface_set_rpm(700);
+    // bldc_interface_set_rpm(&motor1, 700);
+    // bldc_interface_set_rpm(&motor2, 700);
+    // bldc_interface_set_rpm(&motor3, 700);
 
     HAL_Delay(100);
 
-    bldc_interface_get_values();
+    bldc_interface_get_values(&motor1);
 
     HAL_Delay(100);
     /* USER CODE END WHILE */

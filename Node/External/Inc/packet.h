@@ -27,15 +27,17 @@
 
 #include <stdint.h>
 
+#include "bldc_interface.h"
+
 // Settings
 #define PACKET_RX_TIMEOUT		2
-#define PACKET_HANDLERS			1
+#define PACKET_HANDLERS			3
 #define PACKET_MAX_PL_LEN		512
 
 // Functions
 void packet_init(void (*s_func)(unsigned char *data, unsigned int len),
-		void (*p_func)(unsigned char *data, unsigned int len), int handler_num);
-void packet_process_byte(uint8_t rx_data, int handler_num);
+		void (*p_func)(BldcInterface* interface, unsigned char *data, unsigned int len), int handler_num);
+void packet_process_byte(BldcInterface* interface, uint8_t rx_data, int handler_num);
 void packet_timerfunc(void);
 void packet_send_packet(unsigned char *data, unsigned int len, int handler_num);
 
