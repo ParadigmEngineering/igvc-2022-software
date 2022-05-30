@@ -18,3 +18,13 @@
 #define LAMP_2_TEST_OFF   0x0204
 #define LAMP_3_TEST_OFF   0x0205
 #define LAMP_4_TEST_OFF   0x0206
+
+#define MOTOR_CONTROL_RPM_MASK 0x0010
+#define MOTOR_1_RPM            0x0011
+#define MOTOR_2_RPM            0x0012
+#define MOTOR_3_RPM            0x0013
+
+#define MOTOR_CONTROL_CURRENT_MASK 0x0020
+#define MOTOR_1_CURRENT            0x0021
+#define MOTOR_2_CURRENT            0x0022
+#define MOTOR_3_CURRENT            0x0023

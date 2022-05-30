@@ -51,9 +51,9 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-BldcInterface motor1;
-BldcInterface motor2;
-BldcInterface motor3;
+BldcInterface motor1 = {0};
+BldcInterface motor2 = {0};
+BldcInterface motor3 = {0};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -213,16 +213,16 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    // handle_can_messages(1);
     // bldc_interface_set_rpm(&motor1, 700);
     // bldc_interface_set_rpm(&motor2, 700);
     // bldc_interface_set_rpm(&motor3, 700);
+    handle_can_messages(1);
 
     HAL_Delay(100);
 
-    bldc_interface_get_values(&motor1);
+    // bldc_interface_get_values(&motor1);
 
-    HAL_Delay(100);
+    // HAL_Delay(100);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

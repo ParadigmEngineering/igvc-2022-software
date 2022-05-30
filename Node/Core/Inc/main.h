@@ -22,6 +22,7 @@
 #ifndef __MAIN_H
 #define __MAIN_H
 
+#include "bldc_interface.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -53,7 +54,9 @@ extern "C" {
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
-
+extern BldcInterface motor1;
+extern BldcInterface motor2;
+extern BldcInterface motor3;
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/

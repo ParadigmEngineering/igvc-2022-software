@@ -1,12 +1,18 @@
 #include "can_handler.h"
+#include "bldc_interface.h"
 #include "can_message_defs.h"
 #include "stm32f334x8.h"
 #include "utilities.h"
 
 #include "main.h"
 
+#include <string.h>
+
 #include "stm32f3xx_hal_can.h"
 #include "stm32f3xx_hal_gpio.h"
+
+static const float MAX_RPM = 10000.0;
+static const float MAX_CURRENT = 20.0;
 
 static CAN_TxHeaderTypeDef txHeader;
 
@@ -52,6 +58,68 @@ static void led_test(uint32_t id, GPIO_PinState state)
     }
 
     HAL_GPIO_WritePin(port, pin, state);
+}
+
+static void motor_control_rpm(uint32_t id, uint8_t data[])
+{
+    // TODO should probably sanity check the rpm before sending command
+    float rpm;
+    BldcInterface* motor;
+    memcpy(&rpm, data, sizeof(float));
+
+    if (rpm > MAX_RPM)
+    {
+        return;
+    }
+
+    switch(id)
+    {
+        case MOTOR_1_RPM:
+            motor = &motor1;
+            break;
+        case MOTOR_2_RPM:
+            motor = &motor2;
+            break;
+        case MOTOR_3_RPM:
+            motor = &motor3;
+            break;
+        default:
+            motor = &motor1;
+            break;
+    }
+
+    bldc_interface_set_rpm(motor, rpm);
+}
+
+static void motor_control_current(uint32_t id, uint8_t data[])
+{
+    // TODO should probably sanity check the rpm before sending command
+    float current;
+    BldcInterface* motor;
+    memcpy(&current, data, sizeof(float));
+
+    if (current > MAX_CURRENT)
+    {
+        return;
+    }
+
+    switch(id)
+    {
+        case MOTOR_1_CURRENT:
+            motor = &motor1;
+            break;
+        case MOTOR_2_CURRENT:
+            motor = &motor2;
+            break;
+        case MOTOR_3_CURRENT:
+            motor = &motor3;
+            break;
+        default:
+            motor = &motor1;
+            break;
+    }
+
+    bldc_interface_set_current(motor, current);
 }
 
 CanStatus receive_can_message(CanMessage* message)
@@ -122,7 +190,15 @@ void handle_can_messages(uint8_t num_msgs_to_handle)
         status = receive_can_message(&message);
         if (status == CAN_GOOD)
         {
-            if (message.id & LED_ON_TEST_MASK)
+            if (message.id & MOTOR_CONTROL_RPM_MASK)
+            {
+                motor_control_rpm(message.id, message.data);
+            }
+            else if (message.id & MOTOR_CONTROL_CURRENT_MASK)
+            {
+                motor_control_current(message.id, message.data);
+            }
+            else if (message.id & LED_ON_TEST_MASK)
             {
                 led_test(message.id, GPIO_PIN_SET);
             }
