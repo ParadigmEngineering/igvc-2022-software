@@ -35,7 +35,7 @@ def main():
     """ Initialize and execute ROS node """
     rospy.init_node("bev_publisher", anonymous=True)
     filepath = rospy.get_param("/para/bev_publisher_node/filepath")    
-    topic = "/bev/segmented"
+    topic = "bev/segmented"
     pub = rospy.Publisher(topic, Image, queue_size=10)
     
     # Load image with opencv and convert to ros message
