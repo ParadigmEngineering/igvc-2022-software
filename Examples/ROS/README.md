@@ -2,12 +2,23 @@
 
 1. Select a distribution and install it
 
+    Note: In my case, installing ros noetic with Xserver display driver 
+    resulted in me getting logged out over and over again during installation.
+    This was resolved by using an nvidia driver instead.
+
     There is more than one stable ROS distribution. 
     Some are older releases with LTS, meaning they are more stable. Some
     are newer with shorter support lifetimes. 
 
     For Ubuntu 20.04, `Noetic Ninjemys` is recommended, with LTS until 2025. 
     Download + install link below, follow the instructions.
+    
+    The instructions are a little outdated, step 1.3 - "Setup keys" 
+    should be replaced with: 
+
+    ```
+    sudo -E apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
+    ```
 
     ``` 
     http://wiki.ros.org/noetic/Installation/Ubuntu
