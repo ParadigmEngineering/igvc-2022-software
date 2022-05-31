@@ -20,11 +20,11 @@ ROS packages are handled a little differently in this repo than most others.
 ## TLDR
 Prerequisites:
 - Linux
-- ROS install
+- ROS install + ROS build tools
 
 From repo root:
 ```
-./rospack_install.sh
+./rospack_setup.sh
 pmake
 ```
 
