@@ -7,7 +7,7 @@ import rospy
 from sensor_msgs.msg import NavSatFix
 
 
-gps_fix_topic = "/fix"
+gps_fix_topic = "fix"
 
 
 def handle_gps_message(fix: NavSatFix):
