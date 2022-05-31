@@ -9,6 +9,7 @@ import sys, termios, tty
 from open_base.msg import Movement
 from para_control.open_base_utils import GenericMovementFrame, GenericMovementType
 
+
 # TODO: On node close, send velocity 0 command
 # TODO: Implement press and hold 
 move_bindings = \
@@ -33,10 +34,9 @@ speed_bindings = \
 def get_key(): 
     tty.setraw(sys.stdin.fileno())
     key = sys.stdin.read(1)
-
-    # TODO: Is settings here appropriate? 
     termios.tcsetattr(sys.stdin, termios.TCSADRAIN, settings)
     return key
+
 
 def main():
     rospy.init_node("open_base_teleop", anonymous=True, log_level=rospy.INFO)

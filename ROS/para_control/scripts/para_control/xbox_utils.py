@@ -7,6 +7,7 @@ an easier to use format.
 from enum import IntEnum, unique
 from sensor_msgs.msg import Joy
 
+
 @unique
 class ControllerAxisIndices(IntEnum):
     """ XBOX Controller `Joy` message axis array indices
