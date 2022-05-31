@@ -160,6 +160,7 @@ include_directories(
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
 catkin_install_python(PROGRAMS
+  scripts/gps_listener.py  
   scripts/talker.py
   scripts/can_logger.py
   scripts/can_sender.py

@@ -1,0 +1,9 @@
+<launch>
+        <node pkg="nmea_navsat_driver" type="nmea_serial_driver" name="nmea_serial_driver" ns="para">
+            <param name="port" type="string" value="/dev/ttyACM0"/>
+            <param name="baud" type="int" value="38400"/>
+        </node>
+
+        <node pkg="example_pkg" type="gps_listener.py" name="gps_listener" ns="para" output="screen">
+        </node>
+</launch>
