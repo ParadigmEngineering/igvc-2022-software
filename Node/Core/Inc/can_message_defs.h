@@ -8,10 +8,10 @@
 #define MOTOR_2_RPM            0x0022
 #define MOTOR_3_RPM            0x0023
 
-#define MOTOR_CONTROL_CURRENT_MASK 0x0030
-#define MOTOR_1_CURRENT            0x0031
-#define MOTOR_2_CURRENT            0x0032
-#define MOTOR_3_CURRENT            0x0033
+#define MOTOR_CONTROL_CURRENT_MASK 0x0040
+#define MOTOR_1_CURRENT            0x0041
+#define MOTOR_2_CURRENT            0x0042
+#define MOTOR_3_CURRENT            0x0043
 
 #define WIRELESS_ESTOP  120
 

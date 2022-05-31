@@ -108,40 +108,43 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
   HAL_UART_Receive_IT(huart, data, 1);
 }
 
-static void bldc_values_received(mc_values* val)
+static void bldc_values_received_motor1(mc_values* val)
 {
-  CanMessage message1 = {
-    100,
-    8
+  static const uint32_t motor1_ids[] = {
+    0x40,
+    0x41,
+    0x42,
+    0x43,
+    0x44
   };
+  
+  CanMessage message1;
+  message1.id = motor1_ids[0];
+  message1.len = 8;
   memcpy(message1.data, &val->v_in, 4);
   memcpy((message1.data + 4), &val->temp_mos, 4);
 
-  CanMessage message2 = {
-    101,
-    8
-  };
+  CanMessage message2;
+  message2.id = motor1_ids[1];
+  message2.len = 8;
   memcpy(message2.data, &val->temp_motor, 4);
   memcpy((message2.data + 4), &val->current_motor, 4);
 
-  CanMessage message3 = {
-    102,
-    8
-  };
+  CanMessage message3;
+  message3.id = motor1_ids[2];
+  message3.len = 8;
   memcpy(message3.data, &val->current_in, 4);
   memcpy((message3.data + 4), &val->id, 4);
   
-  CanMessage message4 = {
-    103,
-    8
-  };
+  CanMessage message4;
+  message4.id = motor1_ids[3];
+  message4.len = 8;
   memcpy(message4.data, &val->iq, 4);
   memcpy((message4.data + 4), &val->rpm, 4);
 
-  CanMessage message5 = {
-    104,
-    8
-  };
+  CanMessage message5;
+  message5.id = motor1_ids[4];
+  message5.len = 8;
   memcpy(message5.data, &val->duty_now, 4);
   memcpy((message5.data + 4), &val->amp_hours, 4);
 
@@ -152,6 +155,98 @@ static void bldc_values_received(mc_values* val)
   send_can_message_blocking(&message5);
 }
 
+static void bldc_values_received_motor2(mc_values* val)
+{
+  static const uint32_t motor2_ids[] = {
+    0x50,
+    0x51,
+    0x52,
+    0x53,
+    0x54
+  };
+  
+  CanMessage message1;
+  message1.id = motor2_ids[0];
+  message1.len = 8;
+  memcpy(message1.data, &val->v_in, 4);
+  memcpy((message1.data + 4), &val->temp_mos, 4);
+
+  CanMessage message2;
+  message2.id = motor2_ids[1];
+  message2.len = 8;
+  memcpy(message2.data, &val->temp_motor, 4);
+  memcpy((message2.data + 4), &val->current_motor, 4);
+
+  CanMessage message3;
+  message3.id = motor2_ids[2];
+  message3.len = 8;
+  memcpy(message3.data, &val->current_in, 4);
+  memcpy((message3.data + 4), &val->id, 4);
+  
+  CanMessage message4;
+  message4.id = motor2_ids[3];
+  message4.len = 8;
+  memcpy(message4.data, &val->iq, 4);
+  memcpy((message4.data + 4), &val->rpm, 4);
+
+  CanMessage message5;
+  message5.id = motor2_ids[4];
+  message5.len = 8;
+  memcpy(message5.data, &val->duty_now, 4);
+  memcpy((message5.data + 4), &val->amp_hours, 4);
+
+  send_can_message_blocking(&message1);
+  send_can_message_blocking(&message2);
+  send_can_message_blocking(&message3);
+  send_can_message_blocking(&message4);
+  send_can_message_blocking(&message5);
+}
+static void bldc_values_received_motor3(mc_values* val)
+{
+  static const uint32_t motor3_ids[] = {
+    0x60,
+    0x61,
+    0x62,
+    0x63,
+    0x64
+  };
+  
+  CanMessage message1;
+  message1.id = motor3_ids[0];
+  message1.len = 8;
+  memcpy(message1.data, &val->v_in, 4);
+  memcpy((message1.data + 4), &val->temp_mos, 4);
+
+  CanMessage message2;
+  message2.id = motor3_ids[1];
+  message2.len = 8;
+  memcpy(message2.data, &val->temp_motor, 4);
+  memcpy((message2.data + 4), &val->current_motor, 4);
+
+  CanMessage message3;
+  message3.id = motor3_ids[2];
+  message3.len = 8;
+  memcpy(message3.data, &val->current_in, 4);
+  memcpy((message3.data + 4), &val->id, 4);
+  
+  CanMessage message4;
+  message4.id = motor3_ids[3];
+  message4.len = 8;
+  memcpy(message4.data, &val->iq, 4);
+  memcpy((message4.data + 4), &val->rpm, 4);
+
+  CanMessage message5;
+  message5.id = motor3_ids[4];
+  message5.len = 8;
+  memcpy(message5.data, &val->duty_now, 4);
+  memcpy((message5.data + 4), &val->amp_hours, 4);
+
+  send_can_message_blocking(&message1);
+  send_can_message_blocking(&message2);
+  send_can_message_blocking(&message3);
+  send_can_message_blocking(&message4);
+  send_can_message_blocking(&message5);
+}
 /* USER CODE END 0 */
 
 /**
@@ -162,13 +257,13 @@ int main(void)
 {
   /* USER CODE BEGIN 1 */
   bldc_interface_uart_init(&motor1, write_packet_motor1);
-  bldc_interface_set_rx_value_func(&motor1, bldc_values_received);
+  bldc_interface_set_rx_value_func(&motor1, bldc_values_received_motor1);
 
   bldc_interface_uart_init(&motor2, write_packet_motor2);
-  // bldc_interface_set_rx_value_func(&motor2, bldc_values_received);
+  bldc_interface_set_rx_value_func(&motor2, bldc_values_received_motor2);
 
   bldc_interface_uart_init(&motor3, write_packet_motor3);
-  // bldc_interface_set_rx_value_func(&motor3, bldc_values_received);
+  bldc_interface_set_rx_value_func(&motor3, bldc_values_received_motor3);
 
   /* USER CODE END 1 */
 
@@ -216,14 +311,25 @@ int main(void)
   HAL_UART_Receive_IT(&huart1, &rx_data_motor1, 1);
   HAL_UART_Receive_IT(&huart2, &rx_data_motor2, 1);
   HAL_UART_Receive_IT(&huart3, &rx_data_motor3, 1);
-  HAL_GPIO_WritePin(LAMP1_ON_GPIO_Port, LAMP1_ON_Pin, GPIO_PIN_SET);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    handle_can_messages(5);
+    handle_can_messages(1);
+    HAL_Delay(100);
+    bldc_interface_get_values(&motor1);
+    HAL_Delay(100);
+    bldc_interface_get_values(&motor2);
+    HAL_Delay(100);
+    bldc_interface_get_values(&motor3);
+    HAL_Delay(100);
+
+    bldc_interface_set_rpm(&motor1, 700.0);
+    bldc_interface_set_rpm(&motor2, 700.0);
+    bldc_interface_set_rpm(&motor3, 700.0);
+
 
     /* USER CODE END WHILE */
 
