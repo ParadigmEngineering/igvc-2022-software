@@ -3,9 +3,9 @@
 Generate a point cloud from a BEV
 """
 
-from numpy import spacing
 import rospy 
 from sensor_msgs.msg import Image, PointCloud2
+
 
 pc_pub = rospy.Publisher("point_cloud/segmented")
 

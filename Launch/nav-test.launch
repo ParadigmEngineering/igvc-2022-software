@@ -1,6 +1,0 @@
-<launch>
-        <arg name="can_device" default="vcan0"/>
-        <node pkg="para-nav" type="bev_publisher.py" name="bev_publisher_node" ns="para" output="screen">
-                <param name="filepath" value="$(find para-nav)/data/bev-gt-0.png"/>
-        </node>
-</launch>

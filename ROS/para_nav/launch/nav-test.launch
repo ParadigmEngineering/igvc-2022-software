@@ -1,0 +1,8 @@
+<launch>
+        <node pkg="para_nav" type="bev_publisher.py" name="bev_publisher_node" ns="para" output="screen">
+                <param name="filepath" value="$(find para_nav)/data/bev_1.png"/>
+        </node>
+
+        <node pkg="para_nav" type="para_nav_node" name="para_nav_node" ns="para" output="screen">
+        </node>
+</launch>

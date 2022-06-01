@@ -41,11 +41,12 @@ def main():
     # Load image with opencv and convert to ros message
     cv_img = load_image(filepath)
     ros_img = cv_to_ros_image(cv_img)
+    ros_img.header.frame_id = "1"
     rate = rospy.Rate(0.5)
 
     while not rospy.is_shutdown():    
         # Publish image
-        pub.publish(ros_img)
+        pub.publish(ros_img) 
         rospy.loginfo(f"Published segmented BEV image\n Topic = {topic}, File = {filepath}")
         rate.sleep()
 
