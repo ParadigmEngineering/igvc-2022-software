@@ -54,7 +54,11 @@
   <build_depend>rospy</build_depend>
   <build_depend>std_msgs</build_depend>
   <build_depend>ros_canopen</build_depend>
+  <build_depend>joy</build_depend>
+  <build_depend>ros_control</build_depend>
+  <build_depend>ros_controllers</build_depend>
   <build_depend>nmea_navsat_driver</build_depend>
+  <build_depend>pcl_ros</build_depend>
 
   <build_export_depend>roscpp</build_export_depend>
   <build_export_depend>rospy</build_export_depend>

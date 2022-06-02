@@ -1,6 +1,0 @@
-ros-noetic-ros-canopen
-ros-noetic-joy
-ros-noetic-ros-control
-ros-noetic-controllers
-ros-noetic-nmea-navsat-driver
-ros-noetic-pcl-ros
