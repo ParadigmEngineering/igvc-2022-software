@@ -26,6 +26,7 @@
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
+#include <stdint.h>
 #include <string.h>
 
 /* Private includes ----------------------------------------------------------*/
@@ -36,6 +37,13 @@
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
+typedef enum
+{
+  BOOT,
+  STANDBY,
+  AUTONOMOUS,
+  MANUAL
+} state;
 /* USER CODE BEGIN PTD */
 
 /* USER CODE END PTD */
@@ -83,6 +91,12 @@ static void write_packet_motor3(unsigned char* data, unsigned int len)
 uint8_t rx_data_motor1;
 uint8_t rx_data_motor2;
 uint8_t rx_data_motor3;
+
+state curr_state; // declare in global scope makes it easier to manage
+state next_state;
+
+GPIO_TypeDef gpio_type;
+uint32_t gpio_pin; // often a bit set/reset register for gpio writes/reads
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
@@ -247,6 +261,109 @@ static void bldc_values_received_motor3(mc_values* val)
   send_can_message_blocking(&message4);
   send_can_message_blocking(&message5);
 }
+
+// Note: state will be changing based on can messages, GPIO actuations will stay in the main
+// but the receive_can_message() call will be converted to handle_can_messages() in the outer scope (main),
+// receive_can_message() must be changed to account for state
+static void get_next_state(void)
+{
+  // Prelim Message Id Map:
+  // id   |   description
+  // 0    |   E-stop (wireless or physical)
+  // 1    |   Set Autonomous state
+  // 2    |   Set Manual state
+  // 3    |   Set Standby
+  CanMessage message;
+  CanStatus status;
+
+  status = receive_can_message(&message);
+  if (status == CAN_GOOD)
+  {
+    switch(curr_state)
+    {
+      if (message.id == 0)
+      {
+        next_state = BOOT;
+        break;
+      }
+      case BOOT:
+        HAL_Delay(1000); // Wait 1s to transition to standby
+        next_state = STANDBY;
+        break;
+      case STANDBY:
+        if (message.id == 1)
+        {
+          next_state = AUTONOMOUS;
+          break;
+        }
+        else if (message.id == 2)
+        {
+          next_state = MANUAL;
+          break;
+        }
+        break;
+      case AUTONOMOUS:
+        if (message.id == 3)
+        {
+          next_state = STANDBY;
+          break;
+        }
+        break;
+      case MANUAL:
+        if (message.id == 3)
+        {
+          next_state = STANDBY;
+          break;
+        }
+        break;
+      default:
+        next_state = BOOT;
+        break;
+    }
+  }
+}
+
+static void write_leds(void)
+{
+  // Solid LEDs
+  if (curr_state == BOOT || curr_state == STANDBY)
+  {
+    gpio_pin = LAMP1_ON_Pin;
+    gpio_type.BSRR = gpio_pin;
+    HAL_GPIO_WritePin(&gpio_type, gpio_pin, GPIO_PIN_SET);
+
+    gpio_pin = LAMP2_ON_Pin;
+    gpio_type.BSRR = gpio_pin;
+    HAL_GPIO_WritePin(&gpio_type, gpio_pin, GPIO_PIN_SET);
+
+    gpio_pin = LAMP3_ON_Pin;
+    gpio_type.BSRR = gpio_pin;
+    HAL_GPIO_WritePin(&gpio_type, gpio_pin, GPIO_PIN_SET);
+
+    gpio_pin = LAMP4_ON_Pin;
+    gpio_type.BSRR = gpio_pin;
+    HAL_GPIO_WritePin(&gpio_type, gpio_pin, GPIO_PIN_SET);
+  }
+
+  // Blink LEDs
+  else if (curr_state == AUTONOMOUS || curr_state == MANUAL)
+  {
+    gpio_pin = LAMP1_ON_Pin;
+    gpio_type.BSRR = gpio_pin;
+    HAL_GPIO_TogglePin(&gpio_type, gpio_pin);
+    gpio_pin = LAMP2_ON_Pin;
+    gpio_type.BSRR = gpio_pin;
+    HAL_GPIO_TogglePin(&gpio_type, gpio_pin);
+    gpio_pin = LAMP3_ON_Pin;
+    gpio_type.BSRR = gpio_pin;
+    HAL_GPIO_TogglePin(&gpio_type, gpio_pin);
+    gpio_pin = LAMP4_ON_Pin;
+    gpio_type.BSRR = gpio_pin;
+    HAL_GPIO_TogglePin(&gpio_type, gpio_pin);
+    HAL_Delay(500); // Wait half a second to make leds flash
+  }
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -295,6 +412,9 @@ int main(void)
   MX_I2C1_Init();
   MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
+  curr_state = BOOT;  // Set initial states
+  next_state = STANDBY;
+
   CAN_FilterTypeDef sf;
   sf.FilterMaskIdHigh = 0x0000;
   sf.FilterMaskIdLow = 0x0000;
@@ -330,6 +450,10 @@ int main(void)
     bldc_interface_set_rpm(&motor2, 700.0);
     bldc_interface_set_rpm(&motor3, 700.0);
 
+    // Actuate GPIOs based on current state, will stuff into helper
+    write_leds();
+    get_next_state();
+    curr_state = next_state;
 
     /* USER CODE END WHILE */
 
