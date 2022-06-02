@@ -116,3 +116,24 @@ class XboxControllerState():
 
         self.left_stick_click = state.buttons[ControllerButtonIndices.LEFT_STICK_CLICK]
         self.right_stick_click = state.buttons[ControllerButtonIndices.RIGHT_STICK_CLICK]
+
+    def __str__(self):
+        """ Return string representation of the controller state """
+        ret_str = f"Left Stick: ({self.left_stick_x}, {self.left_stick_y}\n" \
+                  f"Right Stick: ({self.right_stick_x}. {self.right_stick_y})\n" \
+                  f"D-Pad: ({self.dpad_x}, {self.dpad_y})" \
+                  f"Left Trigger: {self.left_trigger}" \
+                  f"Right Trigger: {self.right_trigger}" \
+                  f"A: {self.a}" \
+                  f"B: {self.b}" \
+                  f"X: {self.x}" \
+                  f"Y: {self.y}" \
+                  f"Back: {self.back}" \
+                  f"Start: {self.start}" \
+                  f"Power: {self.power}" \
+                  f"Left Bumper: {self.left_bumper}" \
+                  f"Right Bumber: {self.right_bumper}" \
+                  f"Left Stick Click: {self.left_stick_click}" \
+                  f"Right Stick Click: {self.right_stick_click}" \
+                
+        return  ret_str
