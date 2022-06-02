@@ -279,13 +279,13 @@ static void get_next_state(void)
   status = receive_can_message(&message);
   if (status == CAN_GOOD)
   {
+    if (message.id == 0)
+    {
+      next_state = BOOT;
+      return;
+    }
     switch(curr_state)
     {
-      if (message.id == 0)
-      {
-        next_state = BOOT;
-        break;
-      }
       case BOOT:
         HAL_Delay(1000); // Wait 1s to transition to standby
         next_state = STANDBY;
