@@ -5,4 +5,9 @@
 
         <node pkg="para_nav" type="para_nav_node" name="para_nav_node" ns="para" output="screen">
         </node>
+
+        <node pkg="pointcloud_to_laserscan" type="pointcloud_to_laserscan_node" name="pointcloud_to_lasercan" ns="para" output="screen">
+                <remap from="cloud_in" to="pcl/segmented"/>
+        </node>
+
 </launch>
