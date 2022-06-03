@@ -23,6 +23,9 @@ sudo apt-get install ros-noetic-nmea-navsat-driver
 To get up and running quickly:
 ```
 rosrun nmea_navsat_driver nmea_serial_driver _port:=/dev/ttyUSB0 _baud:=38400
+
+Generally:
+rosrun c nmea_serial_driver _port:=/dev/ttyACM0 _baud:=38400
 ```
 
 This will publish data to the following topics: 
