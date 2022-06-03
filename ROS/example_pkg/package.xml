@@ -60,6 +60,7 @@
   <build_depend>nmea_navsat_driver</build_depend>
   <build_depend>pcl_ros</build_depend>
   <build_depend>pointcloud_to_laserscan</build_depend>
+  <build_depend>robot_localization</build_depend>
 
   <build_export_depend>roscpp</build_export_depend>
   <build_export_depend>rospy</build_export_depend>
