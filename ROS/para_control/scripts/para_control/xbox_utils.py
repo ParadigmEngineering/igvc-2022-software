@@ -9,9 +9,8 @@ from sensor_msgs.msg import Joy
 
 
 @unique
-class ControllerAxisIndices(IntEnum):
-    """ XBOX Controller `Joy` message axis array indices
-    """
+class XboxControllerAxisIndices(IntEnum):
+    """ Xbox Controller `Joy` message axis array indices """
     LEFT_X          = 0
     LEFT_Y          = 1
     LEFT_TRIGGER    = 2
@@ -23,9 +22,8 @@ class ControllerAxisIndices(IntEnum):
 
 
 @unique
-class ControllerButtonIndices(IntEnum):
-    """ Xbox Controller 'Joy' message button array indices
-    """
+class XboxControllerButtonIndices(IntEnum):
+    """ Xbox Controller 'Joy' message button array indices """
     A                   = 0
     B                   = 1
     X                   = 2
@@ -89,51 +87,51 @@ class XboxControllerState():
     
     def update_state_from_joy(self, state: Joy):
         """ Update controller state from a Joy message """
-        self.dpad_x = state.axes[ControllerAxisIndices.DPAD_X]
-        self.dpad_y = state.axes[ControllerAxisIndices.DPAD_Y]
+        self.dpad_x = state.axes[XboxControllerAxisIndices.DPAD_X]
+        self.dpad_y = state.axes[XboxControllerAxisIndices.DPAD_Y]
 
-        self.left_stick_x = state.axes[ControllerAxisIndices.LEFT_X]
-        self.left_stick_y = state.axes[ControllerAxisIndices.LEFT_Y]
+        self.left_stick_x = state.axes[XboxControllerAxisIndices.LEFT_X]
+        self.left_stick_y = state.axes[XboxControllerAxisIndices.LEFT_Y]
 
-        self.right_stick_x = state.axes[ControllerAxisIndices.RIGHT_X] 
-        self.right_stick_y = state.axes[ControllerAxisIndices.RIGHT_Y]
+        self.right_stick_x = state.axes[XboxControllerAxisIndices.RIGHT_X] 
+        self.right_stick_y = state.axes[XboxControllerAxisIndices.RIGHT_Y]
 
-        self.left_trigger = state.axes[ControllerAxisIndices.LEFT_TRIGGER]
-        self.right_trigger = state.axes[ControllerAxisIndices.RIGHT_TRIGGER]
+        self.left_trigger = state.axes[XboxControllerAxisIndices.LEFT_TRIGGER]
+        self.right_trigger = state.axes[XboxControllerAxisIndices.RIGHT_TRIGGER]
 
         # Buttons
-        self.a = state.buttons[ControllerButtonIndices.A]
-        self.b = state.buttons[ControllerButtonIndices.B]
-        self.x = state.buttons[ControllerButtonIndices.X]
-        self.y = state.buttons[ControllerButtonIndices.Y]
+        self.a = state.buttons[XboxControllerButtonIndices.A]
+        self.b = state.buttons[XboxControllerButtonIndices.B]
+        self.x = state.buttons[XboxControllerButtonIndices.X]
+        self.y = state.buttons[XboxControllerButtonIndices.Y]
 
-        self.back = state.buttons[ControllerButtonIndices.BACK]
-        self.start = state.buttons[ControllerButtonIndices.START]
-        self.power = state.buttons[ControllerButtonIndices.POWER]
+        self.back = state.buttons[XboxControllerButtonIndices.BACK]
+        self.start = state.buttons[XboxControllerButtonIndices.START]
+        self.power = state.buttons[XboxControllerButtonIndices.POWER]
 
-        self.left_bumper = state.buttons[ControllerButtonIndices.LB]
-        self.right_bumper = state.buttons[ControllerButtonIndices.RB]
+        self.left_bumper = state.buttons[XboxControllerButtonIndices.LB]
+        self.right_bumper = state.buttons[XboxControllerButtonIndices.RB]
 
-        self.left_stick_click = state.buttons[ControllerButtonIndices.LEFT_STICK_CLICK]
-        self.right_stick_click = state.buttons[ControllerButtonIndices.RIGHT_STICK_CLICK]
+        self.left_stick_click = state.buttons[XboxControllerButtonIndices.LEFT_STICK_CLICK]
+        self.right_stick_click = state.buttons[XboxControllerButtonIndices.RIGHT_STICK_CLICK]
 
     def __str__(self):
         """ Return string representation of the controller state """
-        ret_str = f"Left Stick: ({self.left_stick_x}, {self.left_stick_y}\n" \
-                  f"Right Stick: ({self.right_stick_x}. {self.right_stick_y})\n" \
-                  f"D-Pad: ({self.dpad_x}, {self.dpad_y})" \
-                  f"Left Trigger: {self.left_trigger}" \
-                  f"Right Trigger: {self.right_trigger}" \
-                  f"A: {self.a}" \
-                  f"B: {self.b}" \
-                  f"X: {self.x}" \
-                  f"Y: {self.y}" \
-                  f"Back: {self.back}" \
-                  f"Start: {self.start}" \
-                  f"Power: {self.power}" \
-                  f"Left Bumper: {self.left_bumper}" \
-                  f"Right Bumber: {self.right_bumper}" \
-                  f"Left Stick Click: {self.left_stick_click}" \
-                  f"Right Stick Click: {self.right_stick_click}" \
+        ret_str = f"Left Stick: ({self.left_stick_x}, {self.left_stick_y})\n" \
+                  f"Right Stick: ({self.right_stick_x}, {self.right_stick_y})\n" \
+                  f"D-Pad: ({self.dpad_x}, {self.dpad_y})\n" \
+                  f"Left Trigger: {self.left_trigger}\n" \
+                  f"Right Trigger: {self.right_trigger}\n" \
+                  f"A: {self.a}\n" \
+                  f"B: {self.b}\n" \
+                  f"X: {self.x}\n" \
+                  f"Y: {self.y}\n" \
+                  f"Back: {self.back}\n" \
+                  f"Start: {self.start}\n" \
+                  f"Power: {self.power}\n" \
+                  f"Left Bumper: {self.left_bumper}\n" \
+                  f"Right Bumber: {self.right_bumper}\n" \
+                  f"Left Stick Click: {self.left_stick_click}\n" \
+                  f"Right Stick Click: {self.right_stick_click}\n" \
                 
         return  ret_str

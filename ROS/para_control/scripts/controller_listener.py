@@ -4,12 +4,11 @@
 Listen for /para/joy messages, and convert to motor commands. 
 """
 
-from ROS.para_control.scripts.para_control.ps4_utils import PS4ControllerState
 import rospy
 
 from sensor_msgs.msg import Joy
-from para_control.xbox_utils import XboxControllerState
 from para_control.ps4_utils import PS4ControllerState
+from para_control.xbox_utils import XboxControllerState
 
 controller_state = PS4ControllerState()
 
@@ -21,7 +20,7 @@ def handle_joy_update(state: Joy):
     """
     global controller_state
     controller_state.update_state_from_joy(state)
-    rospy.loginfo(controller_state.str())
+    rospy.loginfo("\n" + str(controller_state))
 
 
 def main():
