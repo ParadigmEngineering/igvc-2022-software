@@ -5,6 +5,6 @@
             <param name="autorepeat_rate" type="double" value="0.0"/>
         </node>
 
-        <node pkg="para_control" type="xbox_listener.py" name="xbox_listener" ns="para" output="screen">
+        <node pkg="para_control" type="controller_listener.py" name="controller_listener" ns="para" output="screen">
         </node>
 </launch>

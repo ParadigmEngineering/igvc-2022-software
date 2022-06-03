@@ -7,10 +7,10 @@ Listen for /para/joy messages, and convert to motor commands.
 import rospy
 
 from sensor_msgs.msg import Joy
+from para_control.ps4_utils import PS4ControllerState
 from para_control.xbox_utils import XboxControllerState
 
-
-controller_state = XboxControllerState()
+controller_state = PS4ControllerState()
 
 def handle_joy_update(state: Joy):
     """ Convert joy stick state to a motor command 
@@ -20,15 +20,7 @@ def handle_joy_update(state: Joy):
     """
     global controller_state
     controller_state.update_state_from_joy(state)
-    rospy.loginfo \
-    (
-        f"LeftX - {controller_state.left_stick_x} | "
-        f"LeftY - {controller_state.left_stick_y} | " 
-        f"LeftTrigger - {controller_state.left_trigger} | "
-        f"RightTrigger - {controller_state.right_trigger} | "
-        f"Dpad X - {controller_state.dpad_x} | "
-        f"Dpad Y - {controller_state.dpad_y} | "
-    )
+    rospy.loginfo("\n" + str(controller_state))
 
 
 def main():
