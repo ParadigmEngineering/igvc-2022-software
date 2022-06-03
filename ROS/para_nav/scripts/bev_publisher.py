@@ -41,7 +41,7 @@ def main():
     # Load image with opencv and convert to ros message
     cv_img = load_image(filepath)
     ros_img = cv_to_ros_image(cv_img)
-    ros_img.header.frame_id = "1"
+    ros_img.header.frame_id = "zed_2_camera_center"
     rate = rospy.Rate(0.5)
 
     while not rospy.is_shutdown():    

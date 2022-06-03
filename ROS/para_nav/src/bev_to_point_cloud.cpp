@@ -26,6 +26,9 @@ ros::Publisher pub;
 
 void image_to_pcl(const sensor_msgs::ImageConstPtr& image, const PointCloud::Ptr& pcl)
 {
+	const double PPM = 88.29;
+	const double OBSTACLE_HEIGHT = 1;
+
 	cv_bridge::CvImageConstPtr cv_img = cv_bridge::toCvShare(image, "bgr8");
 
 	size_t z = 0;
@@ -35,16 +38,17 @@ void image_to_pcl(const sensor_msgs::ImageConstPtr& image, const PointCloud::Ptr
 		{
 			auto color = cv_img->image.at<cv::Vec3b>(cv::Point(x, y));
 		
-			z = (color == cv::Vec3b(81, 0, 81)) ? 0 : 30;
+			z = (color == cv::Vec3b(81, 0, 81)) ? 0 : OBSTACLE_HEIGHT;
 			z = color == cv::Vec3b(150, 150, 150) ? 0 : z; 
 
 			auto p = pcl::PointXYZRGB();
-			p.x = x;
-			p.y = y;
+			p.x = (x / PPM) - 2.8995; // Center image in coordinate frame 
+			p.y = (y / PPM) + 0.694; 
 			p.z = z;
 			p.r = color[2];
 			p.g = color[1];
 			p.b = color[0];
+
 			pcl->points.push_back(p);
 		}
 	}
@@ -65,7 +69,7 @@ void handle_image(const sensor_msgs::ImageConstPtr& image)
 	// TODO: Generate PCL
 	PointCloud::Ptr msg (new PointCloud);
 	
-	msg->header.frame_id = "static";
+	msg->header.frame_id = "zed2_camera_center";
 	msg->height = image->height; 
 	msg->width = image->width;
 	image_to_pcl(image, msg);
