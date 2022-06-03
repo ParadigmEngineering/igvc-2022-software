@@ -1,13 +1,53 @@
 <launch>
+        <!-- GPS Initialization -->
+        <node pkg="nmea_navsat_driver" type="nmea_serial_driver" name="gps_publisher" ns="para" output="screen">
+                <param name="baud" value="38400"/>
+                <param name="port" value="/dev/ttyACM0"/>
+        </node>
+
+        <!-- Publish ZED camera data -->
+        <arg name="svo_file"             default="" /> <!-- <arg name="svo_file" default="path/to/svo/file.svo"> -->
+        <arg name="stream"               default="" /> <!-- <arg name="stream" default="<ip_address>:<port>"> -->
+
+        <arg name="node_name"            default="zed_node"/>
+        <arg name="camera_model"         default="zed2" />
+        <arg name="publish_urdf"         default="true" />
+
+        <arg name="camera_name"          default="zed2" />
+
+        <arg name="base_frame"           default="base_link" />
+
+        <arg name="cam_pos_x"             default="0.0" /> <!-- Position respect to base frame (i.e. "base_link) -->
+        <arg name="cam_pos_y"             default="0.0" /> <!-- Position respect to base frame (i.e. "base_link) -->
+        <arg name="cam_pos_z"             default="1.0" /> <!-- Position respect to base frame (i.e. "base_link) -->
+
+        <arg name="cam_roll"              default="0.0" />       <!-- Orientation respect to base frame (i.e. "base_link) -->
+        <arg name="cam_pitch"             default="-0.523599" /> <!-- -30 deg orientation respect to base frame (i.e. "base_link) -->
+        <arg name="cam_yaw"               default="0.0" />       <!-- Orientation respect to base frame (i.e. "base_link) -->
+
+        <!-- Remap for convenience-->
+        <include file="$(find zed_wrapper)/launch/include/zed_camera.launch.xml" ns="para">
+            <arg name="camera_name"         value="$(arg camera_name)" />
+            <arg name="svo_file"            value="$(arg svo_file)" />
+            <arg name="stream"              value="$(arg stream)" />
+            <arg name="node_name"           value="$(arg node_name)" />
+            <arg name="camera_model"        value="$(arg camera_model)" />
+            <arg name="base_frame"          value="$(arg base_frame)" />
+            <arg name="publish_urdf"        value="$(arg publish_urdf)" />
+            <arg name="cam_pos_x"           value="$(arg cam_pos_x)" />
+            <arg name="cam_pos_y"           value="$(arg cam_pos_y)" />
+            <arg name="cam_pos_z"           value="$(arg cam_pos_z)" />
+            <arg name="cam_roll"            value="$(arg cam_roll)" />
+            <arg name="cam_pitch"           value="$(arg cam_pitch)" />
+            <arg name="cam_yaw"             value="$(arg cam_yaw)" />
+        </include>
+
+        <!-- Publish a test bev -->
         <node pkg="para_nav" type="bev_publisher.py" name="bev_publisher_node" ns="para" output="screen">
                 <param name="filepath" value="$(find para_nav)/data/bev_1.png"/>
         </node>
 
+        <!-- Convert bev to a point cloud -->
         <node pkg="para_nav" type="para_nav_node" name="para_nav_node" ns="para" output="screen">
         </node>
-
-        <node pkg="pointcloud_to_laserscan" type="pointcloud_to_laserscan_node" name="pointcloud_to_lasercan" ns="para" output="screen">
-                <remap from="cloud_in" to="pcl/segmented"/>
-        </node>
-
 </launch>
