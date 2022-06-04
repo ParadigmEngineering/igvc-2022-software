@@ -45,9 +45,6 @@ typedef enum
   MANUAL
 } state;
 
-state curr_state;
-state next_state;
-
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/
@@ -68,6 +65,8 @@ void get_next_state(uint32_t id);
 extern BldcInterface motor1;
 extern BldcInterface motor2;
 extern BldcInterface motor3;
+extern state curr_state;
+extern state next_state;
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/

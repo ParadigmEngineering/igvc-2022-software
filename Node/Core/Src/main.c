@@ -19,15 +19,10 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "can.h"
-#include "i2c.h"
 #include "spi.h"
-#include "stm32f3xx_hal.h"
-#include "stm32f3xx_hal_gpio.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
-#include <stdint.h>
-#include <string.h>
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -35,10 +30,10 @@
 #include "bldc_interface_uart.h"
 #include "bldc_interface.h"
 #include "can_message_defs.h"
+#include <string.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
-
 /* USER CODE BEGIN PTD */
 
 /* USER CODE END PTD */
@@ -58,6 +53,8 @@
 BldcInterface motor1 = {0};
 BldcInterface motor2 = {0};
 BldcInterface motor3 = {0};
+state curr_state = STANDBY;
+state next_state = STANDBY;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -89,6 +86,14 @@ uint8_t rx_data_motor3;
 
 uint32_t last_time;
 uint32_t second_last_time;
+
+void HAL_GPIO_EXTI_Callback(uint16_t gpio_pin)
+{
+  if (gpio_pin == GPIO_PIN_7)
+  {
+    // E-Stop
+  }
+}
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
@@ -384,11 +389,8 @@ int main(void)
   MX_TIM2_Init();
   MX_TIM3_Init();
   MX_TIM17_Init();
-  MX_I2C1_Init();
   MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
-  curr_state = STANDBY;  // Set initial states
-  next_state = STANDBY;
 
   last_time = HAL_GetTick();
   second_last_time = HAL_GetTick();
@@ -433,9 +435,9 @@ int main(void)
     //get_next_state();
     curr_state = next_state;
 
-    // /* USER CODE END WHILE */
+    /* USER CODE END WHILE */
 
-    // /* USER CODE BEGIN 3 */
+    /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
 }
@@ -475,9 +477,8 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART1|RCC_PERIPHCLK_I2C1;
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART1;
   PeriphClkInit.Usart1ClockSelection = RCC_USART1CLKSOURCE_PCLK1;
-  PeriphClkInit.I2c1ClockSelection = RCC_I2C1CLKSOURCE_HSI;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     Error_Handler();
