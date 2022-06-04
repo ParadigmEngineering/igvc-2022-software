@@ -89,9 +89,10 @@ uint32_t second_last_time;
 
 void HAL_GPIO_EXTI_Callback(uint16_t gpio_pin)
 {
-  if (gpio_pin == GPIO_PIN_7)
+  if (gpio_pin == GPIO_PIN_7 || gpio_pin == GPIO_PIN_15)
   {
-    // E-Stop
+    HAL_SuspendTick();
+    HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
   }
 }
 
