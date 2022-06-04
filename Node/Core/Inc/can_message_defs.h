@@ -1,7 +1,7 @@
-#define STATE_MASK       0x0010
-#define STATE_BOOT       0x0011
-#define STATE_STANDBY    0x0012
-#define STATE_AUTONOMOUS 0x0013
+#define STATE_CHANGE_CAN_ID 0x0010
+#define STANDBY_CAN_ID      0x0011
+#define AUTONOMOUS_CAN_ID   0x0012
+#define MANUAL_CAN_ID       0x0013
 
 #define MOTOR_CONTROL_RPM_MASK 0x0020
 #define MOTOR_1_RPM            0x0021
@@ -30,4 +30,3 @@
 #define LAMP_2_TEST_OFF   0x0204
 #define LAMP_3_TEST_OFF   0x0205
 #define LAMP_4_TEST_OFF   0x0206
-

@@ -23,6 +23,7 @@
 #define __MAIN_H
 
 #include "bldc_interface.h"
+#include <stdint.h>
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -37,6 +38,15 @@ extern "C" {
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
+typedef enum
+{
+  STANDBY,
+  AUTONOMOUS,
+  MANUAL
+} state;
+
+state curr_state;
+state next_state;
 
 /* USER CODE END ET */
 
@@ -52,6 +62,7 @@ extern "C" {
 
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
+void get_next_state(uint32_t id);
 
 /* USER CODE BEGIN EFP */
 extern BldcInterface motor1;

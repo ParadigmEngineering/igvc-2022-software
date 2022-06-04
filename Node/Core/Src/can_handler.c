@@ -190,6 +190,10 @@ void handle_can_messages(uint8_t num_msgs_to_handle)
         status = receive_can_message(&message);
         if (status == CAN_GOOD)
         {
+            if (message.id & STATE_CHANGE_CAN_ID)
+            {
+                get_next_state(message.id);
+            }
             if (message.id & MOTOR_CONTROL_RPM_MASK)
             {
                 motor_control_rpm(message.id, message.data);
