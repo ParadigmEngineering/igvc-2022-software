@@ -4,3 +4,6 @@
 [submodule "ROS/zed-ros-examples"]
 	path = ROS/zed-ros-examples
 	url = git@github.com:stereolabs/zed-ros-examples.git
+[submodule "ROS/para_ai/Cam2BEV"]
+	path = ROS/para_ai/Cam2BEV
+	url = git@github.com:ParadigmBoring/Cam2BEV.git
