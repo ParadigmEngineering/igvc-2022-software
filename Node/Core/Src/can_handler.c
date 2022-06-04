@@ -67,7 +67,7 @@ static void motor_control_rpm(uint32_t id, uint8_t data[])
     BldcInterface* motor;
     memcpy(&rpm, data, sizeof(float));
 
-    if (rpm > MAX_RPM)
+    if (rpm > MAX_RPM || rpm < -MAX_RPM)
     {
         return;
     }
@@ -190,10 +190,28 @@ void handle_can_messages(uint8_t num_msgs_to_handle)
         status = receive_can_message(&message);
         if (status == CAN_GOOD)
         {
+            /* Okay so here was what I was thinking for the motor control logic, something along these lines at least.
+            * - We know that Colton wants to be able to control each motor individually, as well as have different ids
+            *   based on the state
+            *  Here goes some rough logic:
+            *  if (MOTOR1_CONTROL_RPM_MASK)
+            *  {
+            *      if (MOTOR1_CONTROL_RPM_AUTO && curr_state == AUTONOMOUS)
+            *      {
+            *          motor1_control_rpm_auto(message.data);
+            *      }
+            *      if (MOTOR1_CONTROL_RPM_MANUAL && curr_state == MANUAL);
+            *      {
+            *          motor1_control_rpm_manual(message.data);
+            *      }
+            *  }
+            *  ... Continue for three motors, making 6 funcs total!
+            */
             if (message.id & STATE_CHANGE_CAN_ID)
             {
                 get_next_state(message.id);
             }
+            
             if (message.id & MOTOR_CONTROL_RPM_MASK)
             {
                 motor_control_rpm(message.id, message.data);
@@ -202,6 +220,8 @@ void handle_can_messages(uint8_t num_msgs_to_handle)
             {
                 motor_control_current(message.id, message.data);
             }
+
+            // Gonna remove this soon, this is covered in state transitions and main
             else if (message.id & LED_ON_TEST_MASK)
             {
                 led_test(message.id, GPIO_PIN_SET);

@@ -19,7 +19,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "can.h"
-#include "spi.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
@@ -28,7 +27,6 @@
 /* USER CODE BEGIN Includes */
 #include "can_handler.h"
 #include "bldc_interface_uart.h"
-#include "bldc_interface.h"
 #include "can_message_defs.h"
 #include <string.h>
 /* USER CODE END Includes */
@@ -89,10 +87,9 @@ uint32_t second_last_time;
 
 void HAL_GPIO_EXTI_Callback(uint16_t gpio_pin)
 {
-  if (gpio_pin == GPIO_PIN_7 || gpio_pin == GPIO_PIN_15)
+  if (gpio_pin == GPIO_PIN_7 || gpio_pin == GPIO_PIN_4)
   {
-    HAL_SuspendTick();
-    HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+    next_state = STANDBY;
   }
 }
 
@@ -118,6 +115,21 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 
   bldc_interface_uart_process_byte(motor, *data);
   HAL_UART_Receive_IT(huart, data, 1);
+}
+
+// Ask Dan if this is valid to turn off
+void turn_off_lamps(void)
+{
+  HAL_GPIO_WritePin(LAMP1_ON_GPIO_Port, LAMP1_ON_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(LAMP2_ON_GPIO_Port, LAMP2_ON_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(LAMP3_ON_GPIO_Port, LAMP3_ON_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(LAMP4_ON_GPIO_Port, LAMP4_ON_Pin, GPIO_PIN_RESET);
+}
+
+void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *hi2c1)
+{
+  //curr_state = STANDBY_OFF; // So how are we going to actuate based on
+  HAL_I2C_Master_Receive_IT(hi2c1, hi2c1->Init.OwnAddress1, hi2c1->pBuffPtr, hi2c1->XferSize);
 }
 
 static void bldc_values_received_motor1(mc_values* val)
@@ -283,9 +295,19 @@ void get_next_state(uint32_t id)
         next_state = STANDBY;
         break;
       }
+      else if (id != AUTONOMOUS_CAN_ID)
+      {
+        next_state = STANDBY;
+        break;
+      }
       break;
     case MANUAL:
       if (id == STANDBY_CAN_ID)
+      {
+        next_state = STANDBY;
+        break;
+      }
+      else if (id != MANUAL_CAN_ID)
       {
         next_state = STANDBY;
         break;
@@ -297,7 +319,7 @@ void get_next_state(uint32_t id)
   }
 }
 
-static void write_leds(void)
+static void write_lamps(void)
 {
   // Solid LEDs
   if (curr_state == STANDBY)
@@ -390,7 +412,6 @@ int main(void)
   MX_TIM2_Init();
   MX_TIM3_Init();
   MX_TIM17_Init();
-  MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
 
   last_time = HAL_GetTick();
@@ -412,6 +433,8 @@ int main(void)
   HAL_UART_Receive_IT(&huart1, &rx_data_motor1, 1);
   HAL_UART_Receive_IT(&huart2, &rx_data_motor2, 1);
   HAL_UART_Receive_IT(&huart3, &rx_data_motor3, 1);
+
+  //HAL_I2C_Master_Receive_IT(&hi2c1, hi2c1.Init.OwnAddress1, hi2c1.pBuffPtr, hi2c1.XferSize);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -427,14 +450,9 @@ int main(void)
     bldc_interface_get_values(&motor3);
     HAL_Delay(100);
 
-    //bldc_interface_set_rpm(&motor1, 700.0);
-    //bldc_interface_set_rpm(&motor2, 700.0);
-    //bldc_interface_set_rpm(&motor3, 700.0);
-
-    // Actuate GPIOs based on current state, will stuff into helper
-    write_leds();
-    //get_next_state();
-    curr_state = next_state;
+    // Actuate GPIOs based on current state
+    write_lamps();
+    curr_state = next_state;  // next state is set based on CAN Messages
 
     /* USER CODE END WHILE */
 

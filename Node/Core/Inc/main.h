@@ -22,14 +22,13 @@
 #ifndef __MAIN_H
 #define __MAIN_H
 
-#include "bldc_interface.h"
-#include <stdint.h>
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f3xx_hal.h"
+#include "bldc_interface.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -45,6 +44,11 @@ typedef enum
   MANUAL
 } state;
 
+state curr_state;
+state next_state;
+
+void get_next_state(uint32_t id);
+
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/
@@ -59,7 +63,6 @@ typedef enum
 
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
-void get_next_state(uint32_t id);
 
 /* USER CODE BEGIN EFP */
 extern BldcInterface motor1;

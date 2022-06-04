@@ -13,7 +13,6 @@ set(STM32CUBEMX_GENERATED_FILES
     Core/Src/main.c
     Core/Src/gpio.c
     Core/Src/can.c
-    Core/Src/spi.c
     Core/Src/tim.c
     Core/Src/usart.c
     Core/Src/stm32f3xx_it.c
