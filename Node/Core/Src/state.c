@@ -35,7 +35,7 @@ void get_next_state(uint32_t id)
       }
       break;
     default:
-      next_state = STANDBY;
+      next_state = BOOT;
       break;
   }
 }
