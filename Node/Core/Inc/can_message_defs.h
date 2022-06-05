@@ -1,3 +1,5 @@
+#define HEARTBEAT_ID        0x0001
+
 #define STATE_CHANGE_CAN_ID 0x0010
 #define STANDBY_CAN_ID      0x0011
 #define AUTONOMOUS_CAN_ID   0x0012

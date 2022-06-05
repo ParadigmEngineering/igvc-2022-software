@@ -29,6 +29,7 @@
 #include "can_handler.h"
 #include "bldc_interface_uart.h"
 #include "can_message_defs.h"
+#include "state.h"
 #include <stdbool.h>
 #include <string.h>
 /* USER CODE END Includes */
@@ -309,59 +310,6 @@ void diagnose_node()
     badMessage.id = NODE_BAD_CAN_ID_MASK;
     badMessage.len = 0;
     send_can_message_blocking(&badMessage);
-  }
-}
-
-// Called in handle_can_messages(), LEDs actuated by state in main
-void get_next_state(uint32_t id)
-{
-  switch(curr_state)
-  {
-    case BOOT:
-      if (true)
-      {
-        next_state = STANDBY;
-        break;
-      }
-    case STANDBY:
-      if (id == AUTONOMOUS_CAN_ID)
-      {
-        next_state = AUTONOMOUS;
-        break;
-      }
-      if (id == MANUAL_CAN_ID)
-      {
-        next_state = MANUAL;
-        break;
-      }
-      break;
-    case AUTONOMOUS:
-      if (id == STANDBY_CAN_ID)
-      {
-        next_state = STANDBY;
-        break;
-      }
-      else if (id != AUTONOMOUS_CAN_ID)
-      {
-        next_state = STANDBY;
-        break;
-      }
-      break;
-    case MANUAL:
-      if (id == STANDBY_CAN_ID)
-      {
-        next_state = STANDBY;
-        break;
-      }
-      else if (id != MANUAL_CAN_ID)
-      {
-        next_state = STANDBY;
-        break;
-      }
-      break;
-    default:
-      next_state = STANDBY;
-      break;
   }
 }
 

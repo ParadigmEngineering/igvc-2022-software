@@ -38,18 +38,6 @@ extern "C" {
 /* USER CODE BEGIN ET */
 #include "bldc_interface.h"
 
-typedef enum
-{
-  STANDBY,
-  AUTONOMOUS,
-  MANUAL,
-  BOOT
-} state;
-
-state curr_state;
-state next_state;
-
-void get_next_state(uint32_t id);
 
 /* USER CODE END ET */
 
@@ -70,8 +58,6 @@ void Error_Handler(void);
 extern BldcInterface motor1;
 extern BldcInterface motor2;
 extern BldcInterface motor3;
-extern state curr_state;
-extern state next_state;
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/

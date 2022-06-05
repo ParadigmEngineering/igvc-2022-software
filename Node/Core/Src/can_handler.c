@@ -2,6 +2,7 @@
 #include "bldc_interface.h"
 #include "can_message_defs.h"
 #include "stm32f334x8.h"
+#include "state.h"
 #include "utilities.h"
 
 #include "main.h"
