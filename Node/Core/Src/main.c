@@ -463,9 +463,9 @@ int main(void)
       continue;
     }
 
-    try_get_values_motor(&motor1, &motor1_values_last_received);
-    try_get_values_motor(&motor2, &motor2_values_last_received);
-    try_get_values_motor(&motor3, &motor3_values_last_received);
+    // try_get_values_motor(&motor1, &motor1_values_last_received);
+    // try_get_values_motor(&motor2, &motor2_values_last_received);
+    // try_get_values_motor(&motor3, &motor3_values_last_received);
 
     send_current_state(curr_state);
     if (curr_state == BOOT)
