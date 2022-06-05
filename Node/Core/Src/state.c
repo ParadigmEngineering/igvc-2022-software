@@ -18,12 +18,12 @@ void get_next_state(uint32_t id)
   switch(curr_state)
   {
     case BOOT:
-      if (is_vesc_data_valid(vesc_data_valid))
+      if (1)
       {
         next_state = STANDBY;
-        last_heartbeat_received = HAL_GetTick();
         break;
       }
+      break;
     case STANDBY:
       if (id == AUTONOMOUS_REQUEST_CAN_ID)
       {

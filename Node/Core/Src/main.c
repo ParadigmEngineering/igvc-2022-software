@@ -61,6 +61,8 @@ state next_state = BOOT;
 uint32_t last_heartbeat_received = 0;
 static const uint32_t HEARTBEAT_EXPIRED_MS = 1000;
 uint8_t vesc_data_valid[3] = {0};
+
+bool vesc_uart_ready_flags[3] = {1, 1, 1};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -144,6 +146,7 @@ static void bldc_values_received_motor1(mc_values* val)
     0x43,
     0x44
   };
+  vesc_uart_ready_flags[0] = 1; 
 
   vesc_data_valid[0] = 1;
   
@@ -177,11 +180,11 @@ static void bldc_values_received_motor1(mc_values* val)
   memcpy(message5.data, &val->duty_now, 4);
   memcpy((message5.data + 4), &val->amp_hours, 4);
 
-  send_can_message_blocking(&message1);
-  send_can_message_blocking(&message2);
-  send_can_message_blocking(&message3);
-  send_can_message_blocking(&message4);
-  send_can_message_blocking(&message5);
+  //send_can_message(&message1);
+  // send_can_message_blocking(&message2);
+  // send_can_message_blocking(&message3);
+  // send_can_message_blocking(&message4);
+  // send_can_message_blocking(&message5);
 }
 
 static void bldc_values_received_motor2(mc_values* val)
@@ -193,6 +196,7 @@ static void bldc_values_received_motor2(mc_values* val)
     0x53,
     0x54
   };
+  vesc_uart_ready_flags[1] = 1;
   
   vesc_data_valid[1] = 1;
 
@@ -227,10 +231,10 @@ static void bldc_values_received_motor2(mc_values* val)
   memcpy((message5.data + 4), &val->amp_hours, 4);
 
   send_can_message_blocking(&message1);
-  send_can_message_blocking(&message2);
-  send_can_message_blocking(&message3);
-  send_can_message_blocking(&message4);
-  send_can_message_blocking(&message5);
+  // send_can_message_blocking(&message2);
+  // send_can_message_blocking(&message3);
+  // send_can_message_blocking(&message4);
+  // send_can_message_blocking(&message5);
 }
 static void bldc_values_received_motor3(mc_values* val)
 {
@@ -241,7 +245,7 @@ static void bldc_values_received_motor3(mc_values* val)
     0x63,
     0x64
   };
-  
+  vesc_uart_ready_flags[2] = 1;
   vesc_data_valid[2] = 1;
 
   CanMessage message1;
@@ -275,10 +279,10 @@ static void bldc_values_received_motor3(mc_values* val)
   memcpy((message5.data + 4), &val->amp_hours, 4);
 
   send_can_message_blocking(&message1);
-  send_can_message_blocking(&message2);
-  send_can_message_blocking(&message3);
-  send_can_message_blocking(&message4);
-  send_can_message_blocking(&message5);
+  // send_can_message_blocking(&message2);
+  // send_can_message_blocking(&message3);
+  // send_can_message_blocking(&message4);
+  // send_can_message_blocking(&message5);
 }
 
 // Must receive ack bit
@@ -363,16 +367,30 @@ static void write_lamps(void)
     }
   }
 
-  else
+  // Blink LEDs in Manual drive
+  else if (curr_state == BOOT)
   {
-    HAL_GPIO_WritePin(LAMP1_ON_GPIO_Port, LAMP1_ON_Pin, GPIO_PIN_SET);
-    HAL_GPIO_WritePin(LAMP2_ON_GPIO_Port, LAMP2_ON_Pin, GPIO_PIN_SET);
-    HAL_GPIO_WritePin(LAMP3_ON_GPIO_Port, LAMP3_ON_Pin, GPIO_PIN_SET);
-    HAL_GPIO_WritePin(LAMP4_ON_GPIO_Port, LAMP4_ON_Pin, GPIO_PIN_SET);
+    // Wait 0.3 seconds for flash in Manual
+    if (HAL_GetTick()-second_last_time > 25)
+    {
+      HAL_GPIO_TogglePin(LAMP1_ON_GPIO_Port, LAMP1_ON_Pin);
+      HAL_GPIO_TogglePin(LAMP2_ON_GPIO_Port, LAMP2_ON_Pin);
+      HAL_GPIO_TogglePin(LAMP3_ON_GPIO_Port, LAMP3_ON_Pin);
+      HAL_GPIO_TogglePin(LAMP4_ON_GPIO_Port, LAMP4_ON_Pin);
+      second_last_time = HAL_GetTick();
+    }
   }
+
+  // else
+  // {
+  //   HAL_GPIO_WritePin(LAMP1_ON_GPIO_Port, LAMP1_ON_Pin, GPIO_PIN_SET);
+  //   HAL_GPIO_WritePin(LAMP2_ON_GPIO_Port, LAMP2_ON_Pin, GPIO_PIN_SET);
+  //   HAL_GPIO_WritePin(LAMP3_ON_GPIO_Port, LAMP3_ON_Pin, GPIO_PIN_SET);
+  //   HAL_GPIO_WritePin(LAMP4_ON_GPIO_Port, LAMP4_ON_Pin, GPIO_PIN_SET);
+  // }
 }
 
-static int heartbeat_expired(uint32_t last_heartbeat_received_ms)
+int heartbeat_expired(uint32_t last_heartbeat_received_ms)
 {
   return (HAL_GetTick() - last_heartbeat_received_ms) > HEARTBEAT_EXPIRED_MS;
 }
@@ -398,7 +416,7 @@ static void send_current_state(state curr_state)
       break;
   }
 
-  send_can_message_blocking(&message);
+  send_can_message(&message);
 }
 
 /* USER CODE END 0 */
@@ -477,36 +495,54 @@ int main(void)
   {
     handle_can_messages(5);
 
-    if (heartbeat_expired(last_heartbeat_received))
-    {
-      curr_state = BOOT;
-      next_state = BOOT;
-      vesc_data_valid[0] = 0;
-      vesc_data_valid[1] = 0;
-      vesc_data_valid[2] = 0;
-      last_heartbeat_received = 0;
-      continue;
-    }
-    if (curr_state == MANUAL)
-    {
-      bldc_interface_set_rpm(&motor3, 200);
-    }
-    HAL_Delay(100);
-    bldc_interface_get_values(&motor1);
-    HAL_Delay(100);
-    bldc_interface_get_values(&motor2);
-    HAL_Delay(100);
-    bldc_interface_get_values(&motor3);
-    HAL_Delay(100);
-
     // Actuate GPIOs based on current state
     write_lamps();
-    send_current_state(curr_state);
+
+    if (curr_state == BOOT)
+    {
+      next_state = STANDBY;
+    }
+
+    // if (heartbeat_expired(last_heartbeat_received))
+    // {
+    //   curr_state = BOOT;
+    //   next_state = BOOT;
+    //   vesc_data_valid[0] = 0;
+    //   vesc_data_valid[1] = 0;
+    //   vesc_data_valid[2] = 0;
+    //   last_heartbeat_received = 0;
+    //   continue;
+    // }
+
+    if (1)
+    {
+      bldc_interface_get_values(&motor1);
+      HAL_Delay(10);
+      vesc_uart_ready_flags[0] = 0;
+    }
+
+    if (1)
+    {
+      bldc_interface_get_values(&motor3);
+      HAL_Delay(10);
+      vesc_uart_ready_flags[1] = 0;
+    }
+
+    if (1)
+    {
+      bldc_interface_get_values(&motor2);
+      HAL_Delay(10);
+      vesc_uart_ready_flags[2] = 0;
+    }
+
+
+    // send_current_state(curr_state);
     curr_state = next_state;  // next state is set based on CAN Messages
 
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+
   }
   /* USER CODE END 3 */
 }
