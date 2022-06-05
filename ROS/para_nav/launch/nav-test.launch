@@ -53,10 +53,9 @@
                 <remap from="/para/imu/data" to="/para/zed_node/imu/data"/>
                 <remap from="/para/odometry/filtered" to="/para/zed_node/odom"/>
         </node>
-        <node pkg="tf" type="static_transform_publisher" name="gps_to_base_link" args="0 0 0 0 0 0 base_link gps 10" />
-
         
-
+        <node pkg="tf" type="static_transform_publisher" name="gps_to_base_link" args="0 0 0 0 0 0 base_link gps 10" />
+        <node pkg="tf" type="static_transform_publisher" name="zed_static" args="0 0 0 0 0 0 base_link map 10" />
 
         <!-- Publish a test bev -->
         <node pkg="para_nav" type="bev_publisher.py" name="bev_publisher_node" ns="para">
