@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "bldc_interface.h"
 #include "can.h"
 #include "stm32f3xx_hal.h"
 #include "stm32f3xx_hal_gpio.h"
@@ -286,7 +287,7 @@ void diagnose_node()
   HAL_Delay(100);
   bldc_interface_get_values(&motor3);
   HAL_Delay(100);
-  
+
   //isBattGood = HAL_GPIO_ReadPin(BATT_GOOD_GPIO_Port, BATT_GOOD_Pin);
 
   // if (motor1.getSomething != Good || motor2.getSomething != Good || motor3.getSomethign != Good)
@@ -443,7 +444,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    handle_can_messages(1);
+    handle_can_messages(5);
 
     if (heartbeat_expired(last_heartbeat_received))
     {
@@ -452,7 +453,10 @@ int main(void)
       last_heartbeat_received = 0;
       continue;
     }
-
+    if (curr_state == MANUAL)
+    {
+      bldc_interface_set_rpm(&motor3, 200);
+    }
     HAL_Delay(100);
     bldc_interface_get_values(&motor1);
     HAL_Delay(100);

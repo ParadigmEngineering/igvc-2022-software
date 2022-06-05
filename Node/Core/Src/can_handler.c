@@ -128,7 +128,7 @@ void handle_can_messages(uint8_t num_msgs_to_handle)
         status = receive_can_message(&message);
         if (status == CAN_GOOD)
         {
-            if (message.id & HEARTBEAT_ID)
+            if (message.id == HEARTBEAT_ID)
             {
                 last_heartbeat_received = HAL_GetTick();
             }
