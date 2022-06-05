@@ -15,5 +15,6 @@ void get_next_state(uint32_t id);
 
 extern state curr_state;
 extern state next_state;
+extern uint32_t last_heartbeat_received;
 
 #endif

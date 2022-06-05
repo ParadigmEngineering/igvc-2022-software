@@ -19,6 +19,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "can.h"
+#include "stm32f3xx_hal.h"
 #include "stm32f3xx_hal_gpio.h"
 #include "tim.h"
 #include "usart.h"
@@ -56,6 +57,8 @@ BldcInterface motor2 = {0};
 BldcInterface motor3 = {0};
 state curr_state = BOOT;
 state next_state = BOOT;
+uint32_t last_heartbeat_received = 0;
+static const uint32_t HEARTBEAT_EXPIRED_MS = 1000;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -361,6 +364,11 @@ static void write_lamps(void)
   }
 }
 
+static int heartbeat_expired(uint32_t last_heartbeat_received_ms)
+{
+  return (HAL_GetTick() - last_heartbeat_received_ms) > HEARTBEAT_EXPIRED_MS;
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -436,6 +444,15 @@ int main(void)
   while (1)
   {
     handle_can_messages(1);
+
+    if (heartbeat_expired(last_heartbeat_received))
+    {
+      curr_state = BOOT;
+      next_state = BOOT;
+      last_heartbeat_received = 0;
+      continue;
+    }
+
     HAL_Delay(100);
     bldc_interface_get_values(&motor1);
     HAL_Delay(100);

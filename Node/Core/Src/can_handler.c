@@ -3,6 +3,7 @@
 #include "can_message_defs.h"
 #include "stm32f334x8.h"
 #include "state.h"
+#include "stm32f3xx_hal.h"
 #include "utilities.h"
 
 #include "main.h"
@@ -191,6 +192,10 @@ void handle_can_messages(uint8_t num_msgs_to_handle)
         status = receive_can_message(&message);
         if (status == CAN_GOOD)
         {
+            if (message.id & HEARTBEAT_ID)
+            {
+                last_heartbeat_received = HAL_GetTick();
+            }
             /* Okay so here was what I was thinking for the motor control logic, something along these lines at least.
             * - We know that Colton wants to be able to control each motor individually, as well as have different ids
             *   based on the state
