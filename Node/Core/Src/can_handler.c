@@ -64,7 +64,6 @@ static void led_test(uint32_t id, GPIO_PinState state)
 
 static void motor_control_rpm(uint32_t id, uint8_t data[])
 {
-    // TODO should probably sanity check the rpm before sending command
     float rpm;
     BldcInterface* motor;
     memcpy(&rpm, data, sizeof(float));
@@ -74,20 +73,21 @@ static void motor_control_rpm(uint32_t id, uint8_t data[])
         return;
     }
 
-    switch(id)
+    if (IS_MOTOR1_RPM_CONTROL(id))
     {
-        case MOTOR_1_RPM:
-            motor = &motor1;
-            break;
-        case MOTOR_2_RPM:
-            motor = &motor2;
-            break;
-        case MOTOR_3_RPM:
-            motor = &motor3;
-            break;
-        default:
-            motor = &motor1;
-            break;
+        motor = &motor1;
+    }
+    else if (IS_MOTOR2_RPM_CONTROL(id))
+    {
+        motor = &motor2;
+    }
+    else if (IS_MOTOR3_RPM_CONTROL(id))
+    {
+        motor = &motor3;
+    }
+    else
+    {
+        motor = &motor1;
     }
 
     bldc_interface_set_rpm(motor, rpm);
@@ -95,7 +95,6 @@ static void motor_control_rpm(uint32_t id, uint8_t data[])
 
 static void motor_control_current(uint32_t id, uint8_t data[])
 {
-    // TODO should probably sanity check the rpm before sending command
     float current;
     BldcInterface* motor;
     memcpy(&current, data, sizeof(float));
@@ -105,20 +104,21 @@ static void motor_control_current(uint32_t id, uint8_t data[])
         return;
     }
 
-    switch(id)
+    if (IS_MOTOR1_CURRENT_CONTROL(id))
     {
-        case MOTOR_1_CURRENT:
-            motor = &motor1;
-            break;
-        case MOTOR_2_CURRENT:
-            motor = &motor2;
-            break;
-        case MOTOR_3_CURRENT:
-            motor = &motor3;
-            break;
-        default:
-            motor = &motor1;
-            break;
+        motor = &motor1;
+    }
+    else if (IS_MOTOR2_CURRENT_CONTROL(id))
+    {
+        motor = &motor2;
+    }
+    else if (IS_MOTOR3_CURRENT_CONTROL(id))
+    {
+        motor = &motor3;
+    }
+    else
+    {
+        motor = &motor1;
     }
 
     bldc_interface_set_current(motor, current);
@@ -196,37 +196,30 @@ void handle_can_messages(uint8_t num_msgs_to_handle)
             {
                 last_heartbeat_received = HAL_GetTick();
             }
-            /* Okay so here was what I was thinking for the motor control logic, something along these lines at least.
-            * - We know that Colton wants to be able to control each motor individually, as well as have different ids
-            *   based on the state
-            *  Here goes some rough logic:
-            *  if (MOTOR1_CONTROL_RPM_MASK)
-            *  {
-            *      if (MOTOR1_CONTROL_RPM_AUTO && curr_state == AUTONOMOUS)
-            *      {
-            *          motor1_control_rpm_auto(message.data);
-            *      }
-            *      if (MOTOR1_CONTROL_RPM_MANUAL && curr_state == MANUAL);
-            *      {
-            *          motor1_control_rpm_manual(message.data);
-            *      }
-            *  }
-            *  ... Continue for three motors, making 6 funcs total!
-            */
-            if (message.id & STATE_CHANGE_CAN_ID)
-            {
-                get_next_state(message.id);
-            }
-            
-            if (message.id & MOTOR_CONTROL_RPM_MASK)
+            else if ((message.id & MOTOR_CONTROL_RPM_MASK_MANUAL) &&
+                     curr_state == MANUAL)
             {
                 motor_control_rpm(message.id, message.data);
             }
-            else if (message.id & MOTOR_CONTROL_CURRENT_MASK)
+            else if ((message.id & MOTOR_CONTROL_RPM_MASK_AUTONOMOUS) &&
+                     curr_state == AUTONOMOUS)
             {
                 motor_control_current(message.id, message.data);
             }
-
+            else if ((message.id & MOTOR_CONTROL_CURRENT_MASK_MANUAL) &&
+                     curr_state == MANUAL)
+            {
+                motor_control_rpm(message.id, message.data);
+            }
+            else if ((message.id & MOTOR_CONTROL_CURRENT_MASK_AUTONOMOUS) &&
+                     curr_state == AUTONOMOUS)
+            {
+                motor_control_current(message.id, message.data);
+            }
+            else if (message.id & STATE_CHANGE_CAN_ID)
+            {
+                get_next_state(message.id);
+            }
             // Gonna remove this soon, this is covered in state transitions and main
             else if (message.id & LED_ON_TEST_MASK)
             {
