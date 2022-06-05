@@ -370,6 +370,17 @@ static void try_get_values_motor(BldcInterface* motor, uint32_t* last_received)
   }
 }
 
+static const uint32_t SEND_CURRENT_STATE_INTERVAL = 500;
+
+static void try_send_current_state(state curr_state, uint32_t* last_received)
+{
+  if (HAL_GetTick() - *last_received > SEND_CURRENT_STATE_INTERVAL)
+  {
+    send_current_state(curr_state);
+    *last_received = HAL_GetTick();
+  }
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -441,6 +452,8 @@ int main(void)
   uint32_t motor2_values_last_received = HAL_GetTick() + 100;
   uint32_t motor3_values_last_received = HAL_GetTick() + 200;
 
+  uint32_t current_state_last_sent = HAL_GetTick();
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -467,7 +480,8 @@ int main(void)
     // try_get_values_motor(&motor2, &motor2_values_last_received);
     // try_get_values_motor(&motor3, &motor3_values_last_received);
 
-    send_current_state(curr_state);
+    try_send_current_state(curr_state, &current_state_last_sent);
+
     if (curr_state == BOOT)
     {
       next_state = STANDBY;
