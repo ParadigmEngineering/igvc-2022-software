@@ -128,15 +128,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
   HAL_UART_Receive_IT(huart, data, 1);
 }
 
-// Ask Dan if this is valid to turn off
-void turn_off_lamps(void)
-{
-  HAL_GPIO_WritePin(LAMP1_ON_GPIO_Port, LAMP1_ON_Pin, GPIO_PIN_RESET);
-  HAL_GPIO_WritePin(LAMP2_ON_GPIO_Port, LAMP2_ON_Pin, GPIO_PIN_RESET);
-  HAL_GPIO_WritePin(LAMP3_ON_GPIO_Port, LAMP3_ON_Pin, GPIO_PIN_RESET);
-  HAL_GPIO_WritePin(LAMP4_ON_GPIO_Port, LAMP4_ON_Pin, GPIO_PIN_RESET);
-}
-
 static void bldc_values_received_motor1(mc_values* val)
 {
   static const uint32_t motor1_ids[] = {
@@ -283,49 +274,6 @@ static void bldc_values_received_motor3(mc_values* val)
   // send_can_message_blocking(&message3);
   // send_can_message_blocking(&message4);
   // send_can_message_blocking(&message5);
-}
-
-// Must receive ack bit
-void diagnose_node()
-{
-  bool isGood = true;
-  //GPIO_PinState isBattGood = GPIO_PIN_SET;
-
-  // Todo: Vescs, BATT_GOOD (Frank said Batt Good GPIO isnt working, comment out for now)
-  bldc_interface_get_values(&motor1);
-  HAL_Delay(100);
-  bldc_interface_get_values(&motor2);
-  HAL_Delay(100);
-  bldc_interface_get_values(&motor3);
-  HAL_Delay(100);
-
-  //isBattGood = HAL_GPIO_ReadPin(BATT_GOOD_GPIO_Port, BATT_GOOD_Pin);
-
-  // if (motor1.getSomething != Good || motor2.getSomething != Good || motor3.getSomethign != Good)
-  // {
-  //     isGood = false;
-  // }
-
-  // if (isBattGood == GPIO_PIN_RESET)
-  // {
-  //   isGood = false;
-  // }
-
-  if (isGood)
-  {
-    CanMessage goodMessage;
-    goodMessage.id = NODE_GOOD_CAN_ID_MASK;
-    goodMessage.len = 0;
-    send_can_message_blocking(&goodMessage);
-  }
-
-  else
-  {
-    CanMessage badMessage;
-    badMessage.id = NODE_BAD_CAN_ID_MASK;
-    badMessage.len = 0;
-    send_can_message_blocking(&badMessage);
-  }
 }
 
 static void write_lamps(void)

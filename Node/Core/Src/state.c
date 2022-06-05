@@ -17,13 +17,6 @@ void get_next_state(uint32_t id)
 {
   switch(curr_state)
   {
-    case BOOT:
-      if (1)
-      {
-        next_state = STANDBY;
-        break;
-      }
-      break;
     case STANDBY:
       if (id == AUTONOMOUS_REQUEST_CAN_ID)
       {
@@ -49,7 +42,7 @@ void get_next_state(uint32_t id)
       }
       break;
     default:
-      next_state = STANDBY;
+      next_state = BOOT;
       break;
   }
 }
