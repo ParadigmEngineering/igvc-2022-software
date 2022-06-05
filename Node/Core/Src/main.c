@@ -17,21 +17,22 @@
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
-#include "main.h"
 #include "bldc_interface.h"
 #include "can.h"
+#include "gpio.h"
+#include "main.h"
 #include "stm32f3xx_hal.h"
 #include "stm32f3xx_hal_gpio.h"
 #include "tim.h"
 #include "usart.h"
-#include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "can_handler.h"
 #include "bldc_interface_uart.h"
+#include "can_handler.h"
 #include "can_message_defs.h"
 #include "state.h"
+
 #include <stdbool.h>
 #include <string.h>
 /* USER CODE END Includes */
@@ -56,10 +57,13 @@
 BldcInterface motor1 = {0};
 BldcInterface motor2 = {0};
 BldcInterface motor3 = {0};
+
 state curr_state = BOOT;
 state next_state = BOOT;
+
 uint32_t last_heartbeat_received = 0;
 static const uint32_t HEARTBEAT_EXPIRED_MS = 1000;
+
 uint8_t vesc_data_valid[3] = {0};
 /* USER CODE END PV */
 
@@ -468,16 +472,6 @@ int main(void)
     {
       next_state = STANDBY;
     }
-
-
-    bldc_interface_get_values(&motor1);
-    HAL_Delay(10);
-
-    bldc_interface_get_values(&motor3);
-    HAL_Delay(10);
-
-    bldc_interface_get_values(&motor2);
-    HAL_Delay(10);
 
     curr_state = next_state;  // next state is set based on CAN Messages
 

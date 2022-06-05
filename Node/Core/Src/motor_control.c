@@ -1,7 +1,7 @@
-#include "motor_control.h"
-#include "can_message_defs.h"
 #include "bldc_interface.h"
+#include "can_message_defs.h"
 #include "main.h"
+#include "motor_control.h"
 
 #include <string.h>
 

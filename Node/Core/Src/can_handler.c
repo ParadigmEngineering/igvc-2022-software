@@ -1,18 +1,16 @@
-#include "can_handler.h"
 #include "bldc_interface.h"
+#include "can_handler.h"
 #include "can_message_defs.h"
-#include "stm32f334x8.h"
-#include "state.h"
-#include "stm32f3xx_hal.h"
-#include "utilities.h"
-#include "motor_control.h"
-
 #include "main.h"
-
-#include <string.h>
-
+#include "motor_control.h"
+#include "state.h"
+#include "stm32f334x8.h"
+#include "stm32f3xx_hal.h"
 #include "stm32f3xx_hal_can.h"
 #include "stm32f3xx_hal_gpio.h"
+#include "utilities.h"
+
+#include <string.h>
 
 static CAN_TxHeaderTypeDef txHeader;
 
