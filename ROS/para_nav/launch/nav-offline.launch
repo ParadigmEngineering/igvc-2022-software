@@ -3,9 +3,20 @@
 
         <!-- Testing costmap2D -->
         <node pkg="costmap_2d" type="costmap_2d_node" name="costmap_generator">
-           <rosparam file="$(find para_nav)/cfg/global_costmap_params.yaml" command="load" ns="costmap"/>
+           <rosparam file="$(find para_nav)/cfg/local_costmap_params.yaml" command="load" ns="costmap"/>
         </node>
 
         <node pkg="tf" type="static_transform_publisher" name="base_link_static" args="0 0 0 0 0 0 map base_link 10" />
 
+        <!-- Launch move_base -->
+        <!-- Run the map server --> 
+        
+        <!-- <node name="map_server" pkg="map_server" type="map_server" args="$(find para_nav)/cfg/map.yaml"/> -->
+
+        <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+                <param name="controller_frequency" value="12"/>
+                <rosparam file="$(find para_nav)/cfg/local_costmap_params.yaml" command="load" ns="local_costmap" />
+                <rosparam file="$(find para_nav)/cfg/global_costmap_params.yaml" command="load" ns="global_costmap" />
+                <rosparam file="$(find para_nav)/cfg/base_local_planner_params.yaml" command="load" />
+        </node>
 </launch>
