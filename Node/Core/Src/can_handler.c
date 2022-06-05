@@ -132,6 +132,8 @@ void handle_can_messages(uint8_t num_msgs_to_handle)
             {
                 last_heartbeat_received = HAL_GetTick();
             }
+
+            // RPM motor control
             else if ((message.id & MOTOR_CONTROL_RPM_MASK_MANUAL) &&
                      curr_state == MANUAL)
             {
@@ -140,22 +142,38 @@ void handle_can_messages(uint8_t num_msgs_to_handle)
             else if ((message.id & MOTOR_CONTROL_RPM_MASK_AUTONOMOUS) &&
                      curr_state == AUTONOMOUS)
             {
-                motor_control_current(message.id, message.data);
+                motor_control_rpm(message.id, message.data);
             }
+
+            // Current motor control
             else if ((message.id & MOTOR_CONTROL_CURRENT_MASK_MANUAL) &&
                      curr_state == MANUAL)
             {
-                motor_control_rpm(message.id, message.data);
+                motor_control_current(message.id, message.data);
             }
             else if ((message.id & MOTOR_CONTROL_CURRENT_MASK_AUTONOMOUS) &&
                      curr_state == AUTONOMOUS)
             {
                 motor_control_current(message.id, message.data);
             }
+
+            // Duty cycle motor control
+            else if ((message.id & MOTOR_CONTROL_DUTY_CYCLE_MASK_MANUAL) &&
+                     curr_state == MANUAL)
+            {
+                motor_control_duty_cycle(message.id, message.data);
+            }
+            else if ((message.id & MOTOR_CONTROL_DUTY_CYCLE_MASK_AUTONOMOUS) &&
+                     curr_state == AUTONOMOUS)
+            {
+                motor_control_duty_cycle(message.id, message.data);
+            }
+
             else if (message.id & STATE_CHANGE_CAN_ID)
             {
                 get_next_state(message.id);
             }
+
             else if (message.id < 0x7)
             {
                 led_test(message.id, GPIO_PIN_SET);
