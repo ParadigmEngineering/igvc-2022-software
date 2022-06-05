@@ -27,7 +27,8 @@ ros::Publisher pub;
 void image_to_pcl(const sensor_msgs::ImageConstPtr& image, const PointCloud::Ptr& pcl)
 {
 	const double PPM = 88.29;
-	const double OBSTACLE_HEIGHT = 1;
+	const double OBSTACLE_HEIGHT = 0;
+	const double REGULAR_HEIGHT = 0;
 
 	cv_bridge::CvImageConstPtr cv_img = cv_bridge::toCvShare(image, "bgr8");
 
@@ -38,8 +39,14 @@ void image_to_pcl(const sensor_msgs::ImageConstPtr& image, const PointCloud::Ptr
 		{
 			auto color = cv_img->image.at<cv::Vec3b>(cv::Point(x, y));
 		
-			z = (color == cv::Vec3b(81, 0, 81)) ? 0 : OBSTACLE_HEIGHT;
-			z = color == cv::Vec3b(150, 150, 150) ? 0 : z; 
+			if ( color == cv::Vec3b(81, 0, 81) || color == cv::Vec3b(150, 150, 150))
+			{
+				z = -100;
+			}
+			else
+			{
+				z = 0;
+			}
 
 			auto p = pcl::PointXYZRGB();
 			p.x = (x / PPM) - 2.8995; // Center image in coordinate frame 
@@ -56,25 +63,13 @@ void image_to_pcl(const sensor_msgs::ImageConstPtr& image, const PointCloud::Ptr
 
 void handle_image(const sensor_msgs::ImageConstPtr& image)
 {
-	// try
-	// {
-	// 	cv::imshow("view" , cv_bridge::toCvShare(image, "bgr8")->image);
-	// 	cv::waitKey(30);
-	// }
-	// catch (cv_bridge::Exception& e)
-	// {
-	// 	ROS_ERROR("Could not convert from '%s' to 'bgr8'.", image->encoding.c_str());
-	// }
-
-	// TODO: Generate PCL
 	PointCloud::Ptr msg (new PointCloud);
 	
-	msg->header.frame_id = "zed2_camera_center";
+	msg->header.frame_id = "base_link";
 	msg->height = image->height; 
 	msg->width = image->width;
 	image_to_pcl(image, msg);
 	pub.publish(msg);
-	// TODO: Publish PCL
 }
 
 int main(int argc, char** argv)
@@ -89,20 +84,4 @@ int main(int argc, char** argv)
 	image_transport::Subscriber sub = it.subscribe("bev/segmented", 1, handle_image);
 	ros::spin();
 	cv::destroyWindow("view");
-
-	// PointCloud::Ptr msg (new PointCloud);
-	// msg->header.frame_id = "some_tf_frame";
-	// msg->height = 1;
-	// msg->width = 1;
-	// msg->points.push_back(pcl::PointXYZ(1.0, 2.0, 3.0));
-
-	// ros::Rate loop_rate(4);
-
-	// while (nh.ok())
-	// {
-	// 	pcl_conversions::toPCL(ros::Time::now(), msg->header.stamp);
-	// 	pub.publish(msg);
-	// 	ros::spinOnce();
-	// 	loop_rate.sleep();
-	// }
 }
