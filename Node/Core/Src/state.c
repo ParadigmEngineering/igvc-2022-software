@@ -1,5 +1,6 @@
 #include "state.h"
 #include "can_message_defs.h"
+#include "main.h"
 #include "stm32f3xx_hal.h"
 #include <stdint.h>
 #include "state.h"
@@ -10,8 +11,7 @@ void get_next_state(uint32_t id)
   switch(curr_state)
   {
     case BOOT:
-      // TODO make this the state change criteria
-      if (1)
+      if (vesc_data_valid[0] && vesc_data_valid[1] && vesc_data_valid[2])
       {
         next_state = STANDBY;
         last_heartbeat_received = HAL_GetTick();

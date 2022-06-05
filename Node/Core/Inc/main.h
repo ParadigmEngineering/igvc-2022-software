@@ -58,6 +58,7 @@ void Error_Handler(void);
 extern BldcInterface motor1;
 extern BldcInterface motor2;
 extern BldcInterface motor3;
+extern uint8_t vesc_data_valid[3];
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/

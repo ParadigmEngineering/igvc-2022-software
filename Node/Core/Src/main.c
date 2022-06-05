@@ -60,6 +60,7 @@ state curr_state = BOOT;
 state next_state = BOOT;
 uint32_t last_heartbeat_received = 0;
 static const uint32_t HEARTBEAT_EXPIRED_MS = 1000;
+uint8_t vesc_data_valid[3] = {0};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -143,6 +144,8 @@ static void bldc_values_received_motor1(mc_values* val)
     0x43,
     0x44
   };
+
+  vesc_data_valid[0] = 1;
   
   CanMessage message1;
   message1.id = motor1_ids[0];
@@ -191,6 +194,8 @@ static void bldc_values_received_motor2(mc_values* val)
     0x54
   };
   
+  vesc_data_valid[1] = 1;
+
   CanMessage message1;
   message1.id = motor2_ids[0];
   message1.len = 8;
@@ -237,6 +242,8 @@ static void bldc_values_received_motor3(mc_values* val)
     0x64
   };
   
+  vesc_data_valid[2] = 1;
+
   CanMessage message1;
   message1.id = motor3_ids[0];
   message1.len = 8;
@@ -450,6 +457,9 @@ int main(void)
     {
       curr_state = BOOT;
       next_state = BOOT;
+      vesc_data_valid[0] = 0;
+      vesc_data_valid[1] = 0;
+      vesc_data_valid[2] = 0;
       last_heartbeat_received = 0;
       continue;
     }
