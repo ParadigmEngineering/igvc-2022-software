@@ -377,6 +377,30 @@ static int heartbeat_expired(uint32_t last_heartbeat_received_ms)
   return (HAL_GetTick() - last_heartbeat_received_ms) > HEARTBEAT_EXPIRED_MS;
 }
 
+static void send_current_state(state curr_state)
+{
+  CanMessage message;
+  message.len = 0;
+
+  switch (curr_state)
+  {
+    case BOOT:
+      message.id = BOOT_RESPONSE_CAN_ID;
+      break;
+    case STANDBY:
+      message.id = STANDBY_RESPONSE_CAN_ID;
+      break;
+    case MANUAL:
+      message.id = MANUAL_RESPONSE_CAN_ID;
+      break;
+    case AUTONOMOUS:
+      message.id = AUTONOMOUS_RESPONSE_CAN_ID;
+      break;
+  }
+
+  send_can_message_blocking(&message);
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -477,6 +501,7 @@ int main(void)
 
     // Actuate GPIOs based on current state
     write_lamps();
+    send_current_state(curr_state);
     curr_state = next_state;  // next state is set based on CAN Messages
 
     /* USER CODE END WHILE */

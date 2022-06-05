@@ -5,52 +5,47 @@
 #include <stdint.h>
 #include "state.h"
 
+static int is_vesc_data_valid(uint8_t vesc_data_valid[3])
+{
+    return (vesc_data_valid[0] && vesc_data_valid[1]) ||
+           (vesc_data_valid[0] && vesc_data_valid[2]) ||
+           (vesc_data_valid[1] && vesc_data_valid[2]);
+}
+
 // Called in handle_can_messages(), LEDs actuated by state in main
 void get_next_state(uint32_t id)
 {
   switch(curr_state)
   {
     case BOOT:
-      if (vesc_data_valid[0] && vesc_data_valid[1] && vesc_data_valid[2])
+      if (is_vesc_data_valid(vesc_data_valid))
       {
         next_state = STANDBY;
         last_heartbeat_received = HAL_GetTick();
         break;
       }
     case STANDBY:
-      if (id == AUTONOMOUS_CAN_ID)
+      if (id == AUTONOMOUS_REQUEST_CAN_ID)
       {
         next_state = AUTONOMOUS;
         break;
       }
-      if (id == MANUAL_CAN_ID)
+      if (id == MANUAL_REQUEST_CAN_ID)
       {
         next_state = MANUAL;
         break;
       }
       break;
     case AUTONOMOUS:
-      if (id == STANDBY_CAN_ID)
+      if (id == STANDBY_REQUEST_CAN_ID)
       {
         next_state = STANDBY;
-        break;
-      }
-      else if (id != AUTONOMOUS_CAN_ID)
-      {
-        next_state = STANDBY;
-        break;
       }
       break;
     case MANUAL:
-      if (id == STANDBY_CAN_ID)
+      if (id == STANDBY_REQUEST_CAN_ID)
       {
         next_state = STANDBY;
-        break;
-      }
-      else if (id != MANUAL_CAN_ID)
-      {
-        next_state = STANDBY;
-        break;
       }
       break;
     default:
