@@ -15,5 +15,7 @@ Core/Src
 !Core/Inc/can_message_defs.h
 !Core/Src/state.c
 !Core/Inc/state.h
+!Core/Src/motor_control.c
+!Core/Inc/motor_control.h
 compile_commands.json
 .cache/

@@ -44,6 +44,7 @@ set(STM32CUBEMX_GENERATED_FILES
 set(STM32_USER_CREATED_FILES
     Core/Src/can_handler.c
     Core/Src/state.c
+    Core/Src/motor_control.c
 )
 
 set(EXTERNAL_FILES

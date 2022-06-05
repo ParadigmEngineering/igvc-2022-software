@@ -5,6 +5,7 @@
 #include "state.h"
 #include "stm32f3xx_hal.h"
 #include "utilities.h"
+#include "motor_control.h"
 
 #include "main.h"
 
@@ -12,9 +13,6 @@
 
 #include "stm32f3xx_hal_can.h"
 #include "stm32f3xx_hal_gpio.h"
-
-static const float MAX_RPM = 10000.0;
-static const float MAX_CURRENT = 20.0;
 
 static CAN_TxHeaderTypeDef txHeader;
 
@@ -60,68 +58,6 @@ static void led_test(uint32_t id, GPIO_PinState state)
     }
 
     HAL_GPIO_WritePin(port, pin, state);
-}
-
-static void motor_control_rpm(uint32_t id, uint8_t data[])
-{
-    float rpm;
-    BldcInterface* motor;
-    memcpy(&rpm, data, sizeof(float));
-
-    if (rpm > MAX_RPM || rpm < -MAX_RPM)
-    {
-        return;
-    }
-
-    if (IS_MOTOR1_RPM_CONTROL(id))
-    {
-        motor = &motor1;
-    }
-    else if (IS_MOTOR2_RPM_CONTROL(id))
-    {
-        motor = &motor2;
-    }
-    else if (IS_MOTOR3_RPM_CONTROL(id))
-    {
-        motor = &motor3;
-    }
-    else
-    {
-        motor = &motor1;
-    }
-
-    bldc_interface_set_rpm(motor, rpm);
-}
-
-static void motor_control_current(uint32_t id, uint8_t data[])
-{
-    float current;
-    BldcInterface* motor;
-    memcpy(&current, data, sizeof(float));
-
-    if (current > MAX_CURRENT)
-    {
-        return;
-    }
-
-    if (IS_MOTOR1_CURRENT_CONTROL(id))
-    {
-        motor = &motor1;
-    }
-    else if (IS_MOTOR2_CURRENT_CONTROL(id))
-    {
-        motor = &motor2;
-    }
-    else if (IS_MOTOR3_CURRENT_CONTROL(id))
-    {
-        motor = &motor3;
-    }
-    else
-    {
-        motor = &motor1;
-    }
-
-    bldc_interface_set_current(motor, current);
 }
 
 CanStatus receive_can_message(CanMessage* message)
@@ -220,12 +156,11 @@ void handle_can_messages(uint8_t num_msgs_to_handle)
             {
                 get_next_state(message.id);
             }
-            // Gonna remove this soon, this is covered in state transitions and main
-            else if (message.id & LED_ON_TEST_MASK)
+            else if (message.id < 0x7)
             {
                 led_test(message.id, GPIO_PIN_SET);
             }
-            else if (message.id & LED_OFF_TEST_MASK)
+            else if (message.id > 0x7 && message.id < 0xe)
             {
                 led_test(message.id, GPIO_PIN_RESET);
             }
