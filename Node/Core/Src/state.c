@@ -24,6 +24,7 @@ void get_next_state(uint32_t id)
         last_heartbeat_received = HAL_GetTick();
         break;
       }
+      break;
     case STANDBY:
       if (id == AUTONOMOUS_REQUEST_CAN_ID)
       {

@@ -401,6 +401,17 @@ static void send_current_state(state curr_state)
   send_can_message_blocking(&message);
 }
 
+static const uint32_t GET_VALUES_INTERVAL = 500;
+
+static void try_get_values_motor(BldcInterface* motor, uint32_t* last_received)
+{
+  if (HAL_GetTick() - *last_received > GET_VALUES_INTERVAL)
+  {
+    bldc_interface_get_values(motor);
+    *last_received = HAL_GetTick();
+  }
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -468,7 +479,10 @@ int main(void)
   HAL_UART_Receive_IT(&huart2, &rx_data_motor2, 1);
   HAL_UART_Receive_IT(&huart3, &rx_data_motor3, 1);
 
-  //HAL_I2C_Master_Receive_IT(&hi2c1, hi2c1.Init.OwnAddress1, hi2c1.pBuffPtr, hi2c1.XferSize);
+  uint32_t motor1_values_last_received = HAL_GetTick();
+  uint32_t motor2_values_last_received = HAL_GetTick() + 100;
+  uint32_t motor3_values_last_received = HAL_GetTick() + 200;
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -476,6 +490,9 @@ int main(void)
   while (1)
   {
     handle_can_messages(5);
+
+    // Actuate GPIOs based on current state
+    write_lamps();
 
     if (heartbeat_expired(last_heartbeat_received))
     {
@@ -487,20 +504,11 @@ int main(void)
       last_heartbeat_received = 0;
       continue;
     }
-    if (curr_state == MANUAL)
-    {
-      bldc_interface_set_rpm(&motor3, 200);
-    }
-    HAL_Delay(100);
-    bldc_interface_get_values(&motor1);
-    HAL_Delay(100);
-    bldc_interface_get_values(&motor2);
-    HAL_Delay(100);
-    bldc_interface_get_values(&motor3);
-    HAL_Delay(100);
 
-    // Actuate GPIOs based on current state
-    write_lamps();
+    try_get_values_motor(&motor1, &motor1_values_last_received);
+    try_get_values_motor(&motor2, &motor2_values_last_received);
+    try_get_values_motor(&motor3, &motor3_values_last_received);
+
     send_current_state(curr_state);
     curr_state = next_state;  // next state is set based on CAN Messages
 
