@@ -28,7 +28,6 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f3xx_hal.h"
-#include "bldc_interface.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -37,11 +36,14 @@ extern "C" {
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
+#include "bldc_interface.h"
+
 typedef enum
 {
   STANDBY,
   AUTONOMOUS,
-  MANUAL
+  MANUAL,
+  BOOT
 } state;
 
 state curr_state;

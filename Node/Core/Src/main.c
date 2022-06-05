@@ -19,6 +19,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "can.h"
+#include "stm32f3xx_hal_gpio.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
@@ -28,6 +29,7 @@
 #include "can_handler.h"
 #include "bldc_interface_uart.h"
 #include "can_message_defs.h"
+#include <stdbool.h>
 #include <string.h>
 /* USER CODE END Includes */
 
@@ -51,8 +53,8 @@
 BldcInterface motor1 = {0};
 BldcInterface motor2 = {0};
 BldcInterface motor3 = {0};
-state curr_state = STANDBY;
-state next_state = STANDBY;
+state curr_state = BOOT;
+state next_state = BOOT;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -85,6 +87,7 @@ uint8_t rx_data_motor3;
 uint32_t last_time;
 uint32_t second_last_time;
 
+// E-stop interrupts
 void HAL_GPIO_EXTI_Callback(uint16_t gpio_pin)
 {
   if (gpio_pin == GPIO_PIN_7 || gpio_pin == GPIO_PIN_4)
@@ -124,12 +127,6 @@ void turn_off_lamps(void)
   HAL_GPIO_WritePin(LAMP2_ON_GPIO_Port, LAMP2_ON_Pin, GPIO_PIN_RESET);
   HAL_GPIO_WritePin(LAMP3_ON_GPIO_Port, LAMP3_ON_Pin, GPIO_PIN_RESET);
   HAL_GPIO_WritePin(LAMP4_ON_GPIO_Port, LAMP4_ON_Pin, GPIO_PIN_RESET);
-}
-
-void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *hi2c1)
-{
-  //curr_state = STANDBY_OFF; // So how are we going to actuate based on
-  HAL_I2C_Master_Receive_IT(hi2c1, hi2c1->Init.OwnAddress1, hi2c1->pBuffPtr, hi2c1->XferSize);
 }
 
 static void bldc_values_received_motor1(mc_values* val)
@@ -272,11 +269,60 @@ static void bldc_values_received_motor3(mc_values* val)
   send_can_message_blocking(&message5);
 }
 
+// Must receive ack bit
+void diagnose_node()
+{
+  bool isGood = true;
+  //GPIO_PinState isBattGood = GPIO_PIN_SET;
+
+  // Todo: Vescs, BATT_GOOD (Frank said Batt Good GPIO isnt working, comment out for now)
+  bldc_interface_get_values(&motor1);
+  HAL_Delay(100);
+  bldc_interface_get_values(&motor2);
+  HAL_Delay(100);
+  bldc_interface_get_values(&motor3);
+  HAL_Delay(100);
+  
+  //isBattGood = HAL_GPIO_ReadPin(BATT_GOOD_GPIO_Port, BATT_GOOD_Pin);
+
+  // if (motor1.getSomething != Good || motor2.getSomething != Good || motor3.getSomethign != Good)
+  // {
+  //     isGood = false;
+  // }
+
+  // if (isBattGood == GPIO_PIN_RESET)
+  // {
+  //   isGood = false;
+  // }
+
+  if (isGood)
+  {
+    CanMessage goodMessage;
+    goodMessage.id = NODE_GOOD_CAN_ID_MASK;
+    goodMessage.len = 0;
+    send_can_message_blocking(&goodMessage);
+  }
+
+  else
+  {
+    CanMessage badMessage;
+    badMessage.id = NODE_BAD_CAN_ID_MASK;
+    badMessage.len = 0;
+    send_can_message_blocking(&badMessage);
+  }
+}
+
 // Called in handle_can_messages(), LEDs actuated by state in main
 void get_next_state(uint32_t id)
 {
   switch(curr_state)
   {
+    case BOOT:
+      if (true)
+      {
+        next_state = STANDBY;
+        break;
+      }
     case STANDBY:
       if (id == AUTONOMOUS_CAN_ID)
       {

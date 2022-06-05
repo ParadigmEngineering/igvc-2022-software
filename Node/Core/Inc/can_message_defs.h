@@ -3,15 +3,18 @@
 #define AUTONOMOUS_CAN_ID   0x0012
 #define MANUAL_CAN_ID       0x0013
 
-#define MOTOR_CONTROL_RPM_MASK 0x0020
-#define MOTOR_1_RPM            0x0021
-#define MOTOR_2_RPM            0x0022
-#define MOTOR_3_RPM            0x0023
+#define NODE_GOOD_CAN_ID_MASK 0x0020
+#define NODE_BAD_CAN_ID_MASK  0x0021
 
-#define MOTOR_CONTROL_CURRENT_MASK 0x0040
-#define MOTOR_1_CURRENT            0x0041
-#define MOTOR_2_CURRENT            0x0042
-#define MOTOR_3_CURRENT            0x0043
+#define MOTOR_CONTROL_RPM_MASK 0x0040
+#define MOTOR_1_RPM            0x0041
+#define MOTOR_2_RPM            0x0042
+#define MOTOR_3_RPM            0x0043
+
+#define MOTOR_CONTROL_CURRENT_MASK 0x0080
+#define MOTOR_1_CURRENT            0x0081
+#define MOTOR_2_CURRENT            0x0082
+#define MOTOR_3_CURRENT            0x0083
 
 #define WIRELESS_ESTOP  120
 
