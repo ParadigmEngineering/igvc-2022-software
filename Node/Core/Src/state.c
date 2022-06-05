@@ -5,26 +5,11 @@
 #include <stdint.h>
 #include "state.h"
 
-static int is_vesc_data_valid(uint8_t vesc_data_valid[3])
-{
-    return (vesc_data_valid[0] && vesc_data_valid[1]) ||
-           (vesc_data_valid[0] && vesc_data_valid[2]) ||
-           (vesc_data_valid[1] && vesc_data_valid[2]);
-}
-
 // Called in handle_can_messages(), LEDs actuated by state in main
 void get_next_state(uint32_t id)
 {
   switch(curr_state)
   {
-    case BOOT:
-      if (is_vesc_data_valid(vesc_data_valid))
-      {
-        next_state = STANDBY;
-        last_heartbeat_received = HAL_GetTick();
-        break;
-      }
-      break;
     case STANDBY:
       if (id == AUTONOMOUS_REQUEST_CAN_ID)
       {

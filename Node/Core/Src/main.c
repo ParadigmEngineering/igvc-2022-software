@@ -126,15 +126,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
   HAL_UART_Receive_IT(huart, data, 1);
 }
 
-// Ask Dan if this is valid to turn off
-void turn_off_lamps(void)
-{
-  HAL_GPIO_WritePin(LAMP1_ON_GPIO_Port, LAMP1_ON_Pin, GPIO_PIN_RESET);
-  HAL_GPIO_WritePin(LAMP2_ON_GPIO_Port, LAMP2_ON_Pin, GPIO_PIN_RESET);
-  HAL_GPIO_WritePin(LAMP3_ON_GPIO_Port, LAMP3_ON_Pin, GPIO_PIN_RESET);
-  HAL_GPIO_WritePin(LAMP4_ON_GPIO_Port, LAMP4_ON_Pin, GPIO_PIN_RESET);
-}
-
 static void bldc_values_received_motor1(mc_values* val)
 {
   static const uint32_t motor1_ids[] = {
@@ -177,11 +168,11 @@ static void bldc_values_received_motor1(mc_values* val)
   memcpy(message5.data, &val->duty_now, 4);
   memcpy((message5.data + 4), &val->amp_hours, 4);
 
-  send_can_message_blocking(&message1);
-  send_can_message_blocking(&message2);
-  send_can_message_blocking(&message3);
-  send_can_message_blocking(&message4);
-  send_can_message_blocking(&message5);
+  //send_can_message(&message1);
+  // send_can_message_blocking(&message2);
+  // send_can_message_blocking(&message3);
+  // send_can_message_blocking(&message4);
+  // send_can_message_blocking(&message5);
 }
 
 static void bldc_values_received_motor2(mc_values* val)
@@ -227,10 +218,10 @@ static void bldc_values_received_motor2(mc_values* val)
   memcpy((message5.data + 4), &val->amp_hours, 4);
 
   send_can_message_blocking(&message1);
-  send_can_message_blocking(&message2);
-  send_can_message_blocking(&message3);
-  send_can_message_blocking(&message4);
-  send_can_message_blocking(&message5);
+  // send_can_message_blocking(&message2);
+  // send_can_message_blocking(&message3);
+  // send_can_message_blocking(&message4);
+  // send_can_message_blocking(&message5);
 }
 static void bldc_values_received_motor3(mc_values* val)
 {
@@ -241,7 +232,7 @@ static void bldc_values_received_motor3(mc_values* val)
     0x63,
     0x64
   };
-  
+
   vesc_data_valid[2] = 1;
 
   CanMessage message1;
@@ -275,53 +266,10 @@ static void bldc_values_received_motor3(mc_values* val)
   memcpy((message5.data + 4), &val->amp_hours, 4);
 
   send_can_message_blocking(&message1);
-  send_can_message_blocking(&message2);
-  send_can_message_blocking(&message3);
-  send_can_message_blocking(&message4);
-  send_can_message_blocking(&message5);
-}
-
-// Must receive ack bit
-void diagnose_node()
-{
-  bool isGood = true;
-  //GPIO_PinState isBattGood = GPIO_PIN_SET;
-
-  // Todo: Vescs, BATT_GOOD (Frank said Batt Good GPIO isnt working, comment out for now)
-  bldc_interface_get_values(&motor1);
-  HAL_Delay(100);
-  bldc_interface_get_values(&motor2);
-  HAL_Delay(100);
-  bldc_interface_get_values(&motor3);
-  HAL_Delay(100);
-
-  //isBattGood = HAL_GPIO_ReadPin(BATT_GOOD_GPIO_Port, BATT_GOOD_Pin);
-
-  // if (motor1.getSomething != Good || motor2.getSomething != Good || motor3.getSomethign != Good)
-  // {
-  //     isGood = false;
-  // }
-
-  // if (isBattGood == GPIO_PIN_RESET)
-  // {
-  //   isGood = false;
-  // }
-
-  if (isGood)
-  {
-    CanMessage goodMessage;
-    goodMessage.id = NODE_GOOD_CAN_ID_MASK;
-    goodMessage.len = 0;
-    send_can_message_blocking(&goodMessage);
-  }
-
-  else
-  {
-    CanMessage badMessage;
-    badMessage.id = NODE_BAD_CAN_ID_MASK;
-    badMessage.len = 0;
-    send_can_message_blocking(&badMessage);
-  }
+  // send_can_message_blocking(&message2);
+  // send_can_message_blocking(&message3);
+  // send_can_message_blocking(&message4);
+  // send_can_message_blocking(&message5);
 }
 
 static void write_lamps(void)
@@ -363,16 +311,22 @@ static void write_lamps(void)
     }
   }
 
-  else
+  // Blink LEDs in Manual drive
+  else if (curr_state == BOOT)
   {
-    HAL_GPIO_WritePin(LAMP1_ON_GPIO_Port, LAMP1_ON_Pin, GPIO_PIN_SET);
-    HAL_GPIO_WritePin(LAMP2_ON_GPIO_Port, LAMP2_ON_Pin, GPIO_PIN_SET);
-    HAL_GPIO_WritePin(LAMP3_ON_GPIO_Port, LAMP3_ON_Pin, GPIO_PIN_SET);
-    HAL_GPIO_WritePin(LAMP4_ON_GPIO_Port, LAMP4_ON_Pin, GPIO_PIN_SET);
+    // Wait 0.3 seconds for flash in Manual
+    if (HAL_GetTick()-second_last_time > 25)
+    {
+      HAL_GPIO_TogglePin(LAMP1_ON_GPIO_Port, LAMP1_ON_Pin);
+      HAL_GPIO_TogglePin(LAMP2_ON_GPIO_Port, LAMP2_ON_Pin);
+      HAL_GPIO_TogglePin(LAMP3_ON_GPIO_Port, LAMP3_ON_Pin);
+      HAL_GPIO_TogglePin(LAMP4_ON_GPIO_Port, LAMP4_ON_Pin);
+      second_last_time = HAL_GetTick();
+    }
   }
 }
 
-static int heartbeat_expired(uint32_t last_heartbeat_received_ms)
+int heartbeat_expired(uint32_t last_heartbeat_received_ms)
 {
   return (HAL_GetTick() - last_heartbeat_received_ms) > HEARTBEAT_EXPIRED_MS;
 }
@@ -398,7 +352,7 @@ static void send_current_state(state curr_state)
       break;
   }
 
-  send_can_message_blocking(&message);
+  send_can_message(&message);
 }
 
 static const uint32_t GET_VALUES_INTERVAL = 500;
@@ -510,11 +464,27 @@ int main(void)
     try_get_values_motor(&motor3, &motor3_values_last_received);
 
     send_current_state(curr_state);
+    if (curr_state == BOOT)
+    {
+      next_state = STANDBY;
+    }
+
+
+    bldc_interface_get_values(&motor1);
+    HAL_Delay(10);
+
+    bldc_interface_get_values(&motor3);
+    HAL_Delay(10);
+
+    bldc_interface_get_values(&motor2);
+    HAL_Delay(10);
+
     curr_state = next_state;  // next state is set based on CAN Messages
 
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+
   }
   /* USER CODE END 3 */
 }

@@ -59,6 +59,8 @@ extern BldcInterface motor1;
 extern BldcInterface motor2;
 extern BldcInterface motor3;
 extern uint8_t vesc_data_valid[3];
+int heartbeat_expired(uint32_t last_heartbeat_received_ms);
+
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
