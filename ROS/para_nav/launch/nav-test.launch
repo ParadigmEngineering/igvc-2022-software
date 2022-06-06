@@ -1,0 +1,87 @@
+<launch>
+        <!-- GPS Initialization -->
+        <node pkg="nmea_navsat_driver" type="nmea_serial_driver" name="gps_publisher" ns="para">
+                <param name="baud" value="38400"/>
+                <param name="port" value="/dev/ttyACM0"/>
+        </node>
+
+        <!-- Publish ZED camera data -->
+        <arg name="svo_file"             default="" /> <!-- <arg name="svo_file" default="path/to/svo/file.svo"> -->
+        <arg name="stream"               default="" /> <!-- <arg name="stream" default="<ip_address>:<port>"> -->
+
+        <arg name="node_name"            default="zed_node"/>
+        <arg name="camera_model"         default="zed2" />
+        <arg name="publish_urdf"         default="true" />
+
+        <arg name="camera_name"          default="zed2" />
+
+        <arg name="base_frame"           default="base_link" />
+
+        <arg name="cam_pos_x"             default="0.0" /> <!-- Position respect to base frame (i.e. "base_link) -->
+        <arg name="cam_pos_y"             default="0.0" /> <!-- Position respect to base frame (i.e. "base_link) -->
+        <arg name="cam_pos_z"             default="1.0" /> <!-- Position respect to base frame (i.e. "base_link) -->
+
+        <arg name="cam_roll"              default="0.0" />       <!-- Orientation respect to base frame (i.e. "base_link) -->
+        <arg name="cam_pitch"             default="0.523599" /> <!-- -30 deg orientation respect to base frame (i.e. "base_link) -->
+        <arg name="cam_yaw"               default="0.0" />       <!-- Orientation respect to base frame (i.e. "base_link) -->
+
+        <!-- Remap for convenience-->
+        <include file="$(find zed_wrapper)/launch/include/zed_camera.launch.xml" ns="para">
+            <arg name="camera_name"         value="$(arg camera_name)" />
+            <arg name="svo_file"            value="$(arg svo_file)" />
+            <arg name="stream"              value="$(arg stream)" />
+            <arg name="node_name"           value="$(arg node_name)" />
+            <arg name="camera_model"        value="$(arg camera_model)" />
+            <arg name="base_frame"          value="$(arg base_frame)" />
+            <arg name="publish_urdf"        value="$(arg publish_urdf)" />
+            <arg name="cam_pos_x"           value="$(arg cam_pos_x)" />
+            <arg name="cam_pos_y"           value="$(arg cam_pos_y)" />
+            <arg name="cam_pos_z"           value="$(arg cam_pos_z)" />
+            <arg name="cam_roll"            value="$(arg cam_roll)" />
+            <arg name="cam_pitch"           value="$(arg cam_pitch)" />
+            <arg name="cam_yaw"             value="$(arg cam_yaw)" />
+        </include>
+
+        <!--- Boot Navsat Transform -->
+        <node pkg="robot_localization" type="navsat_transform_node" name="navsat_transform_node" ns="para">
+                <param name="magnetic_declination_radians" value="-83.025078"/>
+                <param name="yaw_offset" value="0"/>
+                <param name="zero_altitude" value=""/>
+                <param name="publish_filtered_gps" value="true"/>      
+
+                <remap from="gps/fix" to="/para/fix"/>
+                <remap from="/para/imu/data" to="/para/zed_node/imu/data"/>
+                <remap from="/para/odometry/filtered" to="/para/zed_node/odom"/>
+        </node>
+        
+        <node pkg="tf" type="static_transform_publisher" name="gps_to_base_link" args="0 0 0 0 0 0 base_link gps 10" />
+        <node pkg="tf" type="static_transform_publisher" name="zed_static" args="0 0 0 0 0 0 base_link map 10" />
+
+        <!-- Publish a test bev -->
+        <node pkg="para_nav" type="bev_publisher.py" name="bev_publisher_node" ns="para">
+                <param name="filepath" value="$(find para_nav)/data/bev_1.png"/>
+        </node>
+
+        <!-- Convert bev to a point cloud -->
+        <node pkg="para_nav" type="para_nav_node" name="para_nav_node" ns="para" display="screen">
+        </node>
+
+        <!-- Testing costmap2D -->
+        <node pkg="costmap_2d" type="costmap_2d_node" name="costmap_generator">
+           <rosparam file="$(find para_nav)/cfg/global_costmap_params.yaml" command="load"/>
+        </node>
+
+
+        <!-- Run move_base -->
+
+        <!-- Run the map server --> 
+        <!-- <node name="map_server" pkg="map_server" type="map_server" args="$(find para_nav)/cfg/map.yaml"/>
+
+        <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+                <rosparam file="$(find para_nav)/cfg/costmap_common_params.yaml" command="load" ns="global_costmap" /> 
+                <rosparam file="$(find para_nav)/cfg/costmap_common_params.yaml" command="load" ns="local_costmap" />
+                <rosparam file="$(find para_nav)/cfg/local_costmap_params.yaml" command="load" />
+                <rosparam file="$(find para_nav)/cfg/global_costmap_params.yaml" command="load" /> 
+                <rosparam file="$(find para_nav)/cfg/base_local_planner_params.yaml" command="load" />
+        </node> -->
+</launch>

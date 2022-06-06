@@ -60,3 +60,6 @@ pmake
 
 **Note: I have not seen this approach used before. There may be some pitfalls associated
 with this that we will absolutely swan dive into. Contingency: track the catkin workspace.**
+
+# Setup 
+- Set resolution of zed cam in `ROS/zed-ros-wrapper/zed_wrapper/params/common.yaml`

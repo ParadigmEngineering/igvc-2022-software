@@ -1,0 +1,36 @@
+global_frame: map
+robot_base_frame: base_link 
+update_frequency: 5.0
+publish_frequency: 2
+transform_tolerance: 1
+rolling_window: true
+robot_radius: 0.05
+obstacle_range: 3,
+raytrace_range: 3,
+
+plugins:
+   - {name: obstacles_layer, type: "costmap_2d::ObstacleLayer"}
+   - {name: inflation_layer, type: "costmap_2d::InflationLayer"}
+
+obstacles_layer: 
+   observation_sources: point_cloud
+   point_cloud: { 
+      topic: "/para/pcl/segmented",
+      sensor_frame: "base_link",
+      data_type: "PointCloud2", 
+      clearing: true, 
+      marking: true,
+      obstacle_range: 8,
+      raytrace_range: 8,
+      height: 20,
+      width: 20,
+      resolution: 0.025,
+      origin_x: 0.0,
+      origin_y: 0.0,
+      observation_persistance: 1
+   }
+
+inflation_layer:
+   inflation_radius: 0.05
+   cost_scaling_factor: 10
+   

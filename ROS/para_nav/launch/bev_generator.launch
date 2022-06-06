@@ -1,0 +1,11 @@
+<launch>
+        <!-- Publish a test bev -->
+        <node pkg="para_nav" type="bev_publisher.py" name="bev_publisher_node" ns="para">
+                <param name="filepath" value="$(find para_nav)/data/bev_1.png"/>
+        </node>
+
+        <!-- Convert bev to a point cloud -->
+        <node pkg="para_nav" type="para_nav_node" name="para_nav_node" ns="para">
+        </node>
+
+</launch>

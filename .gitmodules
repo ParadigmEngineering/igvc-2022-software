@@ -4,3 +4,6 @@
 [submodule "ROS/zed-ros-examples"]
 	path = ROS/zed-ros-examples
 	url = git@github.com:stereolabs/zed-ros-examples.git
+[submodule "ROS/rviz_satellite"]
+	path = ROS/rviz_satellite
+	url = git@github.com:nobleo/rviz_satellite.git

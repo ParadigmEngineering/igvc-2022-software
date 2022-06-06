@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>example_pkg</name>
+  <name>para_nav</name>
   <version>0.0.0</version>
-  <description>The example_pkg package</description>
+  <description>The paradigm nav package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
@@ -19,7 +19,7 @@
   <!-- Url tags are optional, but multiple are allowed, one per tag -->
   <!-- Optional attribute type can be: website, bugtracker, or repository -->
   <!-- Example: -->
-  <!-- <url type="website">http://wiki.ros.org/example_pkg</url> -->
+  <!-- <url type="website">http://wiki.ros.org/para-nav</url> -->
 
 
   <!-- Author tags are optional, multiple are allowed, one per tag -->
@@ -49,29 +49,30 @@
   <!-- Use doc_depend for packages you need only for building documentation: -->
   <!--   <doc_depend>doxygen</doc_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
-  
+
   <build_depend>roscpp</build_depend>
   <build_depend>rospy</build_depend>
   <build_depend>std_msgs</build_depend>
-  <build_depend>ros_canopen</build_depend>
-  <build_depend>joy</build_depend>
-  <build_depend>ros_control</build_depend>
-  <build_depend>ros_controllers</build_depend>
-  <build_depend>nmea_navsat_driver</build_depend>
-  <build_depend>pcl_ros</build_depend>
-  <build_depend>pointcloud_to_laserscan</build_depend>
-  <build_depend>robot_localization</build_depend>
-  <build_depend>rqt_common_plugins</build_depend>
-  
+  <build_depend>cv_bridge</build_depend>
+  <build_depend>image_transport</build_depend>
+  <build_depend>sensor_msgs</build_depend> 
+  <build_depend>ros_pcl</build_depend>
+
   <build_export_depend>roscpp</build_export_depend>
   <build_export_depend>rospy</build_export_depend>
   <build_export_depend>std_msgs</build_export_depend>
-  <build_export_depend>ros_canopen</build_export_depend>
+  <build_export_depend>cv_bridge</build_export_depend>
+  <build_export_depend>image_transport</build_export_depend>
+  <build_export_depend>sensor_msgs</build_export_depend>
+  <build_export_depend>ros_pcl</build_export_depend>
 
   <exec_depend>roscpp</exec_depend>
   <exec_depend>rospy</exec_depend>
   <exec_depend>std_msgs</exec_depend>
-  <exec_depend>ros_canopen</exec_depend>
+  <exec_depend>cv_bridge</exec_depend>
+  <exec_depend>image_transport</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>ros_pcl</exec_depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
