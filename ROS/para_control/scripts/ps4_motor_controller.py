@@ -17,7 +17,7 @@ open_base_pub = rospy.Publisher("/open_base/command", Movement, queue_size=10)
 can_pub = rospy.Publisher("sent_messages", Frame, queue_size=10)
 
 # Max bot speed / 5 mi/hr
-max_current = 50
+max_current = 100
 
 # Wheel radius: 8 in = 0.2302 m
 wheel_radius = 0.2032
