@@ -1,0 +1,18 @@
+<launch>
+    <include file="$(find zed_wrapper)/launch/zed2.launch"/>
+    <param name="model_folder_path" value="$(find para_ai)/models"/>
+
+    <node pkg="para_ai" type="zed_to_seg.py" name="zed_to_seg_node" output="screen">
+        <param name="gpu_id" value="0"/>
+        <param name="seg_image_out_topic" value="images/seg"/>
+        <param name="zed_rgb_rectified_topic" value="/zed2/zed_node/rgb/image_rect_color"/>
+        <param name="model_name" value="segformer"/>
+    </node>
+
+    <node pkg="para_ai" type="seg_to_bev.py" name="seg_to_bev_node" output="screen">
+        <param name="gpu_id" value="1"/>
+        <param name="seg_img_in_topic" value="images/seg"/>
+        <param name="cam2bev_path" value="$(find para_ai)/Cam2BEV"/>
+        <param name="model_name" value="cam2bev.hdf5"/>
+    </node>
+</launch>
