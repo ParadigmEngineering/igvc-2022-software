@@ -1,0 +1,18 @@
+<launch>
+        <node pkg="joy" type="joy_node" name="joystick_bridge" ns="para">
+            <param name="dev" type="str" value="/dev/input/js0"/>
+            <param name="deadzone" type="double" value="0.20"/>
+            <param name="autorepeat_rate" type="double" value="5"/>
+        </node>
+
+        <arg name="can_device" default="can0"/>
+        <node pkg="socketcan_bridge" type="socketcan_bridge_node" name="can_bridge" ns="para" output="screen">
+                <param name="can_device" value="$(arg can_device)"/>
+        </node>
+
+        <node pkg="para_control" type="heartbeat.py" name="heartbeat" ns="para" output="screen">
+        </node>
+
+        <node pkg="para_control" type="ps4_state_controller.py" name="ps4_state_controller" ns="para" output="screen">
+        </node>
+</launch>
