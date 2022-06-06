@@ -61,13 +61,13 @@ def handle_joy_update(state: Joy):
         print(f"RPM_LEFT: {wheel_rpm}")
         print(f"RPM_RIGHT: {wheel_rpm}\n")
 
-        frame = gen_wheel_rpm_command(MODE_MASK_RPM.MANUAL_RPM, MOTOR_ID_MASK.MOTOR_BACK, wheel_rpm)
+        frame = gen_wheel_rpm_command(MODE_MASK_RPM.MANUAL, MOTOR_ID_MASK.MOTOR_BACK, wheel_rpm)
         can_pub.publish(frame)
 
-        frame = gen_wheel_rpm_command(MODE_MASK_RPM.MANUAL_RPM, MOTOR_ID_MASK.MOTOR_LEFT, wheel_rpm)
+        frame = gen_wheel_rpm_command(MODE_MASK_RPM.MANUAL, MOTOR_ID_MASK.MOTOR_LEFT, wheel_rpm)
         can_pub.publish(frame)
 
-        frame = gen_wheel_rpm_command(MODE_MASK_RPM.MANUAL_RPM, MOTOR_ID_MASK.MOTOR_RIGHT, wheel_rpm)
+        frame = gen_wheel_rpm_command(MODE_MASK_RPM.MANUAL, MOTOR_ID_MASK.MOTOR_RIGHT, wheel_rpm)
         can_pub.publish(frame)
 
     else:
@@ -87,13 +87,13 @@ def handle_joy_update(state: Joy):
         print(f"RPM_LEFT: {left_wheel_rpm}")
         print(f"RPM_RIGHT: {right_wheel_rpm}\n")
 
-        frame = gen_wheel_rpm_command(MODE_MASK_RPM.MANUAL_RPM, MOTOR_ID_MASK.MOTOR_BACK, back_wheel_rpm)
+        frame = gen_wheel_rpm_command(MODE_MASK_RPM.MANUAL, MOTOR_ID_MASK.MOTOR_BACK, back_wheel_rpm)
         can_pub.publish(frame)
 
-        frame = gen_wheel_rpm_command(MODE_MASK_RPM.MANUAL_RPM, MOTOR_ID_MASK.MOTOR_LEFT, left_wheel_rpm)
+        frame = gen_wheel_rpm_command(MODE_MASK_RPM.MANUAL, MOTOR_ID_MASK.MOTOR_LEFT, left_wheel_rpm)
         can_pub.publish(frame)
 
-        frame = gen_wheel_rpm_command(MODE_MASK_RPM.MANUAL_RPM, MOTOR_ID_MASK.MOTOR_RIGHT, right_wheel_rpm)
+        frame = gen_wheel_rpm_command(MODE_MASK_RPM.MANUAL, MOTOR_ID_MASK.MOTOR_RIGHT, right_wheel_rpm)
         can_pub.publish(frame)
 
 
