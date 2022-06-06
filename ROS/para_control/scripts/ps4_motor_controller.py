@@ -17,7 +17,7 @@ open_base_pub = rospy.Publisher("/open_base/command", Movement, queue_size=10)
 can_pub = rospy.Publisher("sent_messages", Frame, queue_size=10)
 
 # Max bot speed / 5 mi/hr
-max_speed = 2.2352 
+max_current = 50
 
 # Wheel radius: 8 in = 0.2302 m
 wheel_radius = 0.2032
@@ -53,47 +53,54 @@ def handle_joy_update(state: Joy):
     
     # Select mode of operation, give precedence to spot rotation
     if (rotate): 
-        wheel_speed = controller_state.right_trigger - controller_state.left_trigger
-        wheel_speed = wheel_speed * max_speed
-        wheel_rpm = (60 * wheel_speed) / (3.14 * 2 * wheel_radius)
+        local_max = 20
+        current = controller_state.right_trigger - controller_state.left_trigger
+        current = current * local_max
          
-        print(f"RPM_BACK: {wheel_rpm}")
-        print(f"RPM_LEFT: {wheel_rpm}")
-        print(f"RPM_RIGHT: {wheel_rpm}\n")
+        print(f"CURRENT_BACK: {current}")
+        print(f"CURRENT_LEFT: {current}")
+        print(f"CURRENT_RIGHT: {current}\n")
 
-        frame = gen_wheel_rpm_command(MODE_MASK_RPM.MANUAL, MOTOR_ID_MASK.MOTOR_BACK, wheel_rpm)
+        frame = gen_wheel_current_command(MODE_MASK_CURRENT.MANUAL, MOTOR_ID_MASK.MOTOR_BACK, current)
         can_pub.publish(frame)
 
-        frame = gen_wheel_rpm_command(MODE_MASK_RPM.MANUAL, MOTOR_ID_MASK.MOTOR_LEFT, wheel_rpm)
+        frame = gen_wheel_current_command(MODE_MASK_CURRENT.MANUAL, MOTOR_ID_MASK.MOTOR_LEFT, current)
         can_pub.publish(frame)
 
-        frame = gen_wheel_rpm_command(MODE_MASK_RPM.MANUAL, MOTOR_ID_MASK.MOTOR_RIGHT, wheel_rpm)
+        frame = gen_wheel_current_command(MODE_MASK_CURRENT.MANUAL, MOTOR_ID_MASK.MOTOR_RIGHT, current)
         can_pub.publish(frame)
 
     else:
-        vel_x = controller_state.left_stick_x * max_speed
-        vel_y = controller_state.left_stick_y * max_speed
+        vel_x = controller_state.left_stick_x
+        vel_y = controller_state.left_stick_y
 
         wheel_speed = vector_to_wheel_speed(vel_x, vel_y, 0, wheel_radius, bot_radius)
-        wheel_rpms = []
+        sum = 0
+        for num in wheel_speed:
+            sum = sum + num ** 2
+
+        len = np.sqrt(sum)
+
+
+        wheel_currents = []
         for speed in wheel_speed:
-            wheel_rpms.append((60 * speed) / (3.14 * 2 * wheel_radius))
+            wheel_currents.append((speed / max(len, 0.1)) * max_current)
             
-        back_wheel_rpm = wheel_rpms[0]
-        left_wheel_rpm = wheel_rpms[1]
-        right_wheel_rpm = wheel_rpms[2]
+        back_wheel_current = wheel_currents[0]
+        left_wheel_current = wheel_currents[1]
+        right_wheel_current = wheel_currents[2]
 
-        print(f"RPM_BACK: {back_wheel_rpm}")
-        print(f"RPM_LEFT: {left_wheel_rpm}")
-        print(f"RPM_RIGHT: {right_wheel_rpm}\n")
+        print(f"CURRENT_BACK: {back_wheel_current}")
+        print(f"CURRENT_LEFT: {left_wheel_current}")
+        print(f"CURRENT_RIGHT: {right_wheel_current}\n")
 
-        frame = gen_wheel_rpm_command(MODE_MASK_RPM.MANUAL, MOTOR_ID_MASK.MOTOR_BACK, back_wheel_rpm)
+        frame = gen_wheel_current_command(MODE_MASK_CURRENT.MANUAL, MOTOR_ID_MASK.MOTOR_BACK, back_wheel_current)
         can_pub.publish(frame)
 
-        frame = gen_wheel_rpm_command(MODE_MASK_RPM.MANUAL, MOTOR_ID_MASK.MOTOR_LEFT, left_wheel_rpm)
+        frame = gen_wheel_current_command(MODE_MASK_CURRENT.MANUAL, MOTOR_ID_MASK.MOTOR_LEFT, left_wheel_current)
         can_pub.publish(frame)
 
-        frame = gen_wheel_rpm_command(MODE_MASK_RPM.MANUAL, MOTOR_ID_MASK.MOTOR_RIGHT, right_wheel_rpm)
+        frame = gen_wheel_current_command(MODE_MASK_CURRENT.MANUAL, MOTOR_ID_MASK.MOTOR_RIGHT, right_wheel_current)
         can_pub.publish(frame)
 
 
