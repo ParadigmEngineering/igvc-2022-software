@@ -15,7 +15,7 @@ plugins:
 obstacles_layer: 
    observation_sources: point_cloud
    point_cloud: { 
-      topic: "/para/pcl/segmented",
+      topic: "/para/point_cloud/points",
       sensor_frame: "base_link",
       data_type: "PointCloud2", 
       clearing: true, 

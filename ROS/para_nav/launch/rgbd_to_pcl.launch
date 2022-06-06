@@ -58,8 +58,11 @@
         <remap from="depth_registered/image_rect" to="zed_node/depth/depth_registered"/>
 
         <!-- Output: XYZ point cloud. If using PCL, subscribe as PointCloud<PointXYZ>.  (sensor_msgs/PointCloud2)  -->
-        <remap from="depth_registered/points" to="/point_cloud/points"/>
+        <remap from="depth_registered/points" to="point_cloud/points"/>
 
     </node>
+
+    <!-- Process PCL for costmap use -->
+    <node pkg="para_nav" type="pcl_proc_node"  name="pcl_proc" output="screen" ns="para"/>
 
 </launch>

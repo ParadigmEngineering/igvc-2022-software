@@ -71,6 +71,31 @@
            <rosparam file="$(find para_nav)/cfg/global_costmap_params.yaml" command="load"/>
         </node>
 
+            <!-- Nodelet manager for this pipeline -->
+    <node pkg="nodelet" type="nodelet" args="manager" name="standalone_nodelet" output="screen" ns="para"/>
+
+        <!-- Convert to point cloud -->
+        <node pkg="nodelet" type="nodelet" name="depth_image_proc" args="load depth_image_proc/point_cloud_xyzrgb standalone_nodelet --no-bond" ns="para">
+   
+                <!--remap from your specific sensors-->         
+
+                <!-- Input: Camera calibration and metadata.  (sensor_msgs/CameraInfo) -->
+                <remap from="rgb/camera_info" to="zed_node/rgb/camera_info"/>
+
+                <!-- Input: Rectified color image. (sensor_msgs/Image) -->
+                <remap from="rgb/image_rect_color" to="zed_node/rgb/image_rect_color"/>
+
+                <!-- Input: Rectified depth image, registered to the RGB camera. (sensor_msgs/Image) -->
+                <remap from="depth_registered/image_rect" to="zed_node/depth/depth_registered"/>
+
+                <!-- Output: XYZ point cloud. If using PCL, subscribe as PointCloud<PointXYZ>.  (sensor_msgs/PointCloud2)  -->
+                <remap from="depth_registered/points" to="point_cloud/points"/>
+
+        </node>
+
+
+    <!-- Process PCL for costmap use -->
+    <node pkg="para_nav" type="pcl_proc_node"  name="pcl_proc" output="screen" ns="para"/>
 
         <!-- Run move_base -->
 
