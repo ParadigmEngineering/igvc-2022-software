@@ -5,8 +5,8 @@
 
 #include <string.h>
 
-static const float MAX_RPM = 10000.0;
-static const float MAX_CURRENT = 20.0;
+static const float MAX_RPM = 100000.0;
+static const float MAX_CURRENT = 500.0;
 static const float MAX_DUTY_CYCLE = 0.05;
 
 void motor_control_rpm(uint32_t id, uint8_t data[])

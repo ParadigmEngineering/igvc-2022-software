@@ -464,6 +464,7 @@ int main(void)
 
     // Actuate GPIOs based on current state
     write_lamps();
+    // try_send_current_state(curr_state, &current_state_last_sent);
 
     if (heartbeat_expired(last_heartbeat_received))
     {
@@ -479,8 +480,6 @@ int main(void)
     // try_get_values_motor(&motor1, &motor1_values_last_received);
     // try_get_values_motor(&motor2, &motor2_values_last_received);
     // try_get_values_motor(&motor3, &motor3_values_last_received);
-
-    try_send_current_state(curr_state, &current_state_last_sent);
 
     if (curr_state == BOOT)
     {
