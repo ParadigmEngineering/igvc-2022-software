@@ -13,8 +13,6 @@ set(STM32CUBEMX_GENERATED_FILES
     Core/Src/main.c
     Core/Src/gpio.c
     Core/Src/can.c
-    Core/Src/i2c.c
-    Core/Src/spi.c
     Core/Src/tim.c
     Core/Src/usart.c
     Core/Src/stm32f3xx_it.c
@@ -43,8 +41,22 @@ set(STM32CUBEMX_GENERATED_FILES
     startup_stm32f334x8.s
 )
 
+set(STM32_USER_CREATED_FILES
+    Core/Src/can_handler.c
+    Core/Src/state.c
+    Core/Src/motor_control.c
+)
+
+set(EXTERNAL_FILES
+    External/Src/bldc_interface_uart.c
+    External/Src/bldc_interface.c
+    External/Src/buffer.c
+    External/Src/crc.c
+    External/Src/packet.c
+)
+
 set(EXECUTABLE ${PROJECT_NAME}.out)
-add_executable(${EXECUTABLE} ${STM32CUBEMX_GENERATED_FILES})
+add_executable(${EXECUTABLE} ${STM32CUBEMX_GENERATED_FILES} ${STM32_USER_CREATED_FILES} ${EXTERNAL_FILES})
 
 target_compile_definitions(${EXECUTABLE} PRIVATE
     -DUSE_HAL_DRIVER
@@ -52,6 +64,7 @@ target_compile_definitions(${EXECUTABLE} PRIVATE
 )
 
 target_include_directories(${EXECUTABLE} PRIVATE
+    External/Inc
     Core/Inc
     Drivers/STM32F3xx_HAL_Driver/Inc
     Drivers/CMSIS/Device/ST/STM32F3xx/Include
@@ -69,7 +82,7 @@ target_compile_options(${EXECUTABLE} PRIVATE
 
     -Wall
 
-    $<$<CONFIG:Debug>:-Og>
+    -Og
 )
 
 target_link_options(${EXECUTABLE} PRIVATE

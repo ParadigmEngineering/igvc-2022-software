@@ -1,4 +1,5 @@
 build/
+Build/
 Drivers
 Makefile
 .mxproject
@@ -8,5 +9,13 @@ Core/Inc
 Core/Src
 !Core/Src/main.c
 !Core/Inc/main.h
+!Core/Src/can_handler.c
+!Core/Inc/can_handler.h
+!Core/Inc/utilities.h
+!Core/Inc/can_message_defs.h
+!Core/Src/state.c
+!Core/Inc/state.h
+!Core/Src/motor_control.c
+!Core/Inc/motor_control.h
 compile_commands.json
 .cache/

@@ -36,6 +36,8 @@ extern "C" {
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
+#include "bldc_interface.h"
+
 
 /* USER CODE END ET */
 
@@ -53,6 +55,11 @@ extern "C" {
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
+extern BldcInterface motor1;
+extern BldcInterface motor2;
+extern BldcInterface motor3;
+extern uint8_t vesc_data_valid[3];
+int heartbeat_expired(uint32_t last_heartbeat_received_ms);
 
 /* USER CODE END EFP */
 

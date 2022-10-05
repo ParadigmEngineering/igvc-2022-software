@@ -17,17 +17,24 @@
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
-#include "main.h"
+#include "bldc_interface.h"
 #include "can.h"
-#include "i2c.h"
-#include "spi.h"
+#include "gpio.h"
+#include "main.h"
+#include "stm32f3xx_hal.h"
+#include "stm32f3xx_hal_gpio.h"
 #include "tim.h"
 #include "usart.h"
-#include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "bldc_interface_uart.h"
+#include "can_handler.h"
+#include "can_message_defs.h"
+#include "state.h"
 
+#include <stdbool.h>
+#include <string.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -47,7 +54,17 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+BldcInterface motor1 = {0};
+BldcInterface motor2 = {0};
+BldcInterface motor3 = {0};
 
+state curr_state = BOOT;
+state next_state = BOOT;
+
+uint32_t last_heartbeat_received = 0;
+static const uint32_t HEARTBEAT_EXPIRED_MS = 1000;
+
+uint8_t vesc_data_valid[3] = {0};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -58,6 +75,311 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+static void write_packet_motor1(unsigned char* data, unsigned int len)
+{
+  HAL_UART_Transmit(&huart2, data, len, 1000);
+}
+
+static void write_packet_motor2(unsigned char* data, unsigned int len)
+{
+  HAL_UART_Transmit(&huart3, data, len, 1000);
+}
+
+static void write_packet_motor3(unsigned char* data, unsigned int len)
+{
+  HAL_UART_Transmit(&huart1, data, len, 1000);
+}
+
+uint8_t rx_data_motor1;
+uint8_t rx_data_motor2;
+uint8_t rx_data_motor3;
+
+uint32_t last_time;
+uint32_t second_last_time;
+
+// E-stop interrupts
+void HAL_GPIO_EXTI_Callback(uint16_t gpio_pin)
+{
+  if (gpio_pin == GPIO_PIN_7 || gpio_pin == GPIO_PIN_4)
+  {
+    next_state = STANDBY;
+  }
+}
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+  BldcInterface* motor;
+  unsigned char* data;
+  if (huart == &huart1)
+  {
+    motor = &motor3;
+    data = &rx_data_motor3;
+  }
+  else if (huart == &huart2)
+  {
+    motor = &motor1;
+    data = &rx_data_motor1;
+  }
+  else // huart == &huart3
+  {
+    motor = &motor2;
+    data = &rx_data_motor2;
+  }
+
+  bldc_interface_uart_process_byte(motor, *data);
+  HAL_UART_Receive_IT(huart, data, 1);
+}
+
+static void bldc_values_received_motor1(mc_values* val)
+{
+  static const uint32_t motor1_ids[] = {
+    0x40,
+    0x41,
+    0x42,
+    0x43,
+    0x44
+  };
+
+  vesc_data_valid[0] = 1;
+  
+  CanMessage message1;
+  message1.id = motor1_ids[0];
+  message1.len = 8;
+  memcpy(message1.data, &val->v_in, 4);
+  memcpy((message1.data + 4), &val->temp_mos, 4);
+
+  CanMessage message2;
+  message2.id = motor1_ids[1];
+  message2.len = 8;
+  memcpy(message2.data, &val->temp_motor, 4);
+  memcpy((message2.data + 4), &val->current_motor, 4);
+
+  CanMessage message3;
+  message3.id = motor1_ids[2];
+  message3.len = 8;
+  memcpy(message3.data, &val->current_in, 4);
+  memcpy((message3.data + 4), &val->id, 4);
+  
+  CanMessage message4;
+  message4.id = motor1_ids[3];
+  message4.len = 8;
+  memcpy(message4.data, &val->iq, 4);
+  memcpy((message4.data + 4), &val->rpm, 4);
+
+  CanMessage message5;
+  message5.id = motor1_ids[4];
+  message5.len = 8;
+  memcpy(message5.data, &val->duty_now, 4);
+  memcpy((message5.data + 4), &val->amp_hours, 4);
+
+  //send_can_message(&message1);
+  // send_can_message_blocking(&message2);
+  // send_can_message_blocking(&message3);
+  // send_can_message_blocking(&message4);
+  // send_can_message_blocking(&message5);
+}
+
+static void bldc_values_received_motor2(mc_values* val)
+{
+  static const uint32_t motor2_ids[] = {
+    0x50,
+    0x51,
+    0x52,
+    0x53,
+    0x54
+  };
+  
+  vesc_data_valid[1] = 1;
+
+  CanMessage message1;
+  message1.id = motor2_ids[0];
+  message1.len = 8;
+  memcpy(message1.data, &val->v_in, 4);
+  memcpy((message1.data + 4), &val->temp_mos, 4);
+
+  CanMessage message2;
+  message2.id = motor2_ids[1];
+  message2.len = 8;
+  memcpy(message2.data, &val->temp_motor, 4);
+  memcpy((message2.data + 4), &val->current_motor, 4);
+
+  CanMessage message3;
+  message3.id = motor2_ids[2];
+  message3.len = 8;
+  memcpy(message3.data, &val->current_in, 4);
+  memcpy((message3.data + 4), &val->id, 4);
+  
+  CanMessage message4;
+  message4.id = motor2_ids[3];
+  message4.len = 8;
+  memcpy(message4.data, &val->iq, 4);
+  memcpy((message4.data + 4), &val->rpm, 4);
+
+  CanMessage message5;
+  message5.id = motor2_ids[4];
+  message5.len = 8;
+  memcpy(message5.data, &val->duty_now, 4);
+  memcpy((message5.data + 4), &val->amp_hours, 4);
+
+  send_can_message_blocking(&message1);
+  // send_can_message_blocking(&message2);
+  // send_can_message_blocking(&message3);
+  // send_can_message_blocking(&message4);
+  // send_can_message_blocking(&message5);
+}
+static void bldc_values_received_motor3(mc_values* val)
+{
+  static const uint32_t motor3_ids[] = {
+    0x60,
+    0x61,
+    0x62,
+    0x63,
+    0x64
+  };
+
+  vesc_data_valid[2] = 1;
+
+  CanMessage message1;
+  message1.id = motor3_ids[0];
+  message1.len = 8;
+  memcpy(message1.data, &val->v_in, 4);
+  memcpy((message1.data + 4), &val->temp_mos, 4);
+
+  CanMessage message2;
+  message2.id = motor3_ids[1];
+  message2.len = 8;
+  memcpy(message2.data, &val->temp_motor, 4);
+  memcpy((message2.data + 4), &val->current_motor, 4);
+
+  CanMessage message3;
+  message3.id = motor3_ids[2];
+  message3.len = 8;
+  memcpy(message3.data, &val->current_in, 4);
+  memcpy((message3.data + 4), &val->id, 4);
+  
+  CanMessage message4;
+  message4.id = motor3_ids[3];
+  message4.len = 8;
+  memcpy(message4.data, &val->iq, 4);
+  memcpy((message4.data + 4), &val->rpm, 4);
+
+  CanMessage message5;
+  message5.id = motor3_ids[4];
+  message5.len = 8;
+  memcpy(message5.data, &val->duty_now, 4);
+  memcpy((message5.data + 4), &val->amp_hours, 4);
+
+  send_can_message_blocking(&message1);
+  // send_can_message_blocking(&message2);
+  // send_can_message_blocking(&message3);
+  // send_can_message_blocking(&message4);
+  // send_can_message_blocking(&message5);
+}
+
+static void write_lamps(void)
+{
+  // Solid LEDs
+  if (curr_state == STANDBY)
+  {
+    HAL_GPIO_WritePin(LAMP1_ON_GPIO_Port, LAMP1_ON_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(LAMP2_ON_GPIO_Port, LAMP2_ON_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(LAMP3_ON_GPIO_Port, LAMP3_ON_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(LAMP4_ON_GPIO_Port, LAMP4_ON_Pin, GPIO_PIN_SET);
+  }
+
+  // Blink LEDs in Autonomous drive
+  else if (curr_state == AUTONOMOUS)
+  {
+    // Wait 0.5 seconds for flash in Autonomous
+    if (HAL_GetTick()-last_time > 250)
+    {
+      HAL_GPIO_TogglePin(LAMP1_ON_GPIO_Port, LAMP1_ON_Pin);
+      HAL_GPIO_TogglePin(LAMP2_ON_GPIO_Port, LAMP2_ON_Pin);
+      HAL_GPIO_TogglePin(LAMP3_ON_GPIO_Port, LAMP3_ON_Pin);
+      HAL_GPIO_TogglePin(LAMP4_ON_GPIO_Port, LAMP4_ON_Pin);
+      last_time = HAL_GetTick();
+    }
+  }
+
+  // Blink LEDs in Manual drive
+  else if (curr_state == MANUAL)
+  {
+    // Wait 0.3 seconds for flash in Manual
+    if (HAL_GetTick()-second_last_time > 2000)
+    {
+      HAL_GPIO_TogglePin(LAMP1_ON_GPIO_Port, LAMP1_ON_Pin);
+      HAL_GPIO_TogglePin(LAMP2_ON_GPIO_Port, LAMP2_ON_Pin);
+      HAL_GPIO_TogglePin(LAMP3_ON_GPIO_Port, LAMP3_ON_Pin);
+      HAL_GPIO_TogglePin(LAMP4_ON_GPIO_Port, LAMP4_ON_Pin);
+      second_last_time = HAL_GetTick();
+    }
+  }
+
+  // Blink LEDs in Manual drive
+  else if (curr_state == BOOT)
+  {
+    // Wait 0.3 seconds for flash in Manual
+    if (HAL_GetTick()-second_last_time > 25)
+    {
+      HAL_GPIO_TogglePin(LAMP1_ON_GPIO_Port, LAMP1_ON_Pin);
+      HAL_GPIO_TogglePin(LAMP2_ON_GPIO_Port, LAMP2_ON_Pin);
+      HAL_GPIO_TogglePin(LAMP3_ON_GPIO_Port, LAMP3_ON_Pin);
+      HAL_GPIO_TogglePin(LAMP4_ON_GPIO_Port, LAMP4_ON_Pin);
+      second_last_time = HAL_GetTick();
+    }
+  }
+}
+
+int heartbeat_expired(uint32_t last_heartbeat_received_ms)
+{
+  return (HAL_GetTick() - last_heartbeat_received_ms) > HEARTBEAT_EXPIRED_MS;
+}
+
+static void send_current_state(state curr_state)
+{
+  CanMessage message;
+  message.len = 0;
+
+  switch (curr_state)
+  {
+    case BOOT:
+      message.id = BOOT_RESPONSE_CAN_ID;
+      break;
+    case STANDBY:
+      message.id = STANDBY_RESPONSE_CAN_ID;
+      break;
+    case MANUAL:
+      message.id = MANUAL_RESPONSE_CAN_ID;
+      break;
+    case AUTONOMOUS:
+      message.id = AUTONOMOUS_RESPONSE_CAN_ID;
+      break;
+  }
+
+  send_can_message(&message);
+}
+
+static const uint32_t GET_VALUES_INTERVAL = 500;
+
+static void try_get_values_motor(BldcInterface* motor, uint32_t* last_received)
+{
+  if (HAL_GetTick() - *last_received > GET_VALUES_INTERVAL)
+  {
+    bldc_interface_get_values(motor);
+    *last_received = HAL_GetTick();
+  }
+}
+
+static const uint32_t SEND_CURRENT_STATE_INTERVAL = 500;
+
+static void try_send_current_state(state curr_state, uint32_t* last_received)
+{
+  if (HAL_GetTick() - *last_received > SEND_CURRENT_STATE_INTERVAL)
+  {
+    send_current_state(curr_state);
+    *last_received = HAL_GetTick();
+  }
+}
 
 /* USER CODE END 0 */
 
@@ -68,6 +390,14 @@ void SystemClock_Config(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
+  bldc_interface_uart_init(&motor1, write_packet_motor1);
+  bldc_interface_set_rx_value_func(&motor1, bldc_values_received_motor1);
+
+  bldc_interface_uart_init(&motor2, write_packet_motor2);
+  bldc_interface_set_rx_value_func(&motor2, bldc_values_received_motor2);
+
+  bldc_interface_uart_init(&motor3, write_packet_motor3);
+  bldc_interface_set_rx_value_func(&motor3, bldc_values_received_motor3);
 
   /* USER CODE END 1 */
 
@@ -96,9 +426,33 @@ int main(void)
   MX_TIM2_Init();
   MX_TIM3_Init();
   MX_TIM17_Init();
-  MX_I2C1_Init();
-  MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
+
+  last_time = HAL_GetTick();
+  second_last_time = HAL_GetTick();
+
+  CAN_FilterTypeDef sf;
+  sf.FilterMaskIdHigh = 0x0000;
+  sf.FilterMaskIdLow = 0x0000;
+  sf.FilterFIFOAssignment = CAN_FILTER_FIFO0;
+  sf.FilterBank = 0;
+  sf.FilterMode = CAN_FILTERMODE_IDMASK;
+  sf.FilterScale = CAN_FILTERSCALE_32BIT;
+  sf.FilterActivation = CAN_FILTER_ENABLE;
+  if (HAL_CAN_ConfigFilter(&hcan, &sf) != HAL_OK) {
+    Error_Handler();
+  }
+  HAL_CAN_Start(&hcan);
+
+  HAL_UART_Receive_IT(&huart1, &rx_data_motor1, 1);
+  HAL_UART_Receive_IT(&huart2, &rx_data_motor2, 1);
+  HAL_UART_Receive_IT(&huart3, &rx_data_motor3, 1);
+
+  uint32_t motor1_values_last_received = HAL_GetTick();
+  uint32_t motor2_values_last_received = HAL_GetTick() + 100;
+  uint32_t motor3_values_last_received = HAL_GetTick() + 200;
+
+  uint32_t current_state_last_sent = HAL_GetTick();
 
   /* USER CODE END 2 */
 
@@ -106,9 +460,38 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+    handle_can_messages(5);
+
+    // Actuate GPIOs based on current state
+    write_lamps();
+    // try_send_current_state(curr_state, &current_state_last_sent);
+
+    if (heartbeat_expired(last_heartbeat_received))
+    {
+      curr_state = BOOT;
+      next_state = BOOT;
+      vesc_data_valid[0] = 0;
+      vesc_data_valid[1] = 0;
+      vesc_data_valid[2] = 0;
+      last_heartbeat_received = 0;
+      continue;
+    }
+
+    // try_get_values_motor(&motor1, &motor1_values_last_received);
+    // try_get_values_motor(&motor2, &motor2_values_last_received);
+    // try_get_values_motor(&motor3, &motor3_values_last_received);
+
+    if (curr_state == BOOT)
+    {
+      next_state = STANDBY;
+    }
+
+    curr_state = next_state;  // next state is set based on CAN Messages
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+
   }
   /* USER CODE END 3 */
 }
@@ -148,9 +531,8 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART1|RCC_PERIPHCLK_I2C1;
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART1;
   PeriphClkInit.Usart1ClockSelection = RCC_USART1CLKSOURCE_PCLK1;
-  PeriphClkInit.I2c1ClockSelection = RCC_I2C1CLKSOURCE_HSI;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     Error_Handler();
