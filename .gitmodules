@@ -3,7 +3,7 @@
 	url = git@github.com:stereolabs/zed-ros-examples.git
 [submodule "ROS/para_ai/Cam2BEV"]
 	path = ROS/para_ai/Cam2BEV
-	url = git@github.com:ParadigmBoring/Cam2BEV.git
+	url = git@github.com:ParadigmEngineering/Cam2BEV.git
 [submodule "ROS/zed-ros-wrapper"]
 	path = ROS/zed-ros-wrapper
-	url = git@github.com:ParadigmBoring/zed-ros-wrapper.git
+	url = git@github.com:ParadigmEngineering/zed-ros-wrapper.git
